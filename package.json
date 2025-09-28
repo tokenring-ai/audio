@@ -1,22 +1,15 @@
 {
-  "name": "@token-ring/voice",
-  "version": "0.1.0",
-  "dependencies": {
-    "@token-ring/chat": "0.1.0",
-    "@token-ring/cli": "0.1.0",
-    "@token-ring/eslint-config": "0.0.0",
-    "@token-ring/registry": "0.1.0",
-    "naudiodon2": "^2.5.0",
-    "wav": "^1.0.2"
-  },
-  "exports": {
-    ".": "./index.js",
-    "./*": "./*.js"
-  },
-  "private": true,
-  "scripts": {
-    "lint": "eslint ",
-    "eslint": "eslint --fix ./"
-  },
-  "type": "module"
+ "name": "@tokenring-ai/audio",
+ "version": "0.1.0",
+ "description": "Voice recording, playback, and speech processing for the TokenRing ecosystem",
+ "dependencies": {
+  "@tokenring-ai/agent": "0.1.0",
+  "zod": "^4.0.17"
+ },
+ "exports": {
+  ".": "./index.ts",
+  "./*": "./*.ts"
+ },
+ "license": "MIT",
+ "type": "module"
 }
