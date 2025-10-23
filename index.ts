@@ -10,14 +10,14 @@ export const AudioConfigSchema = z.object({
   providers: z.record(z.string(), z.any())
 }).optional();
 
-export const packageInfo: TokenRingPackage = {
+export default {
   name: packageJSON.name,
   version: packageJSON.version,
   description: packageJSON.description,
   install(agentTeam: AgentTeam) {
     const config = agentTeam.getConfigSlice('audio', AudioConfigSchema);
     if (config) {
-      agentTeam.addTools(packageInfo, tools);
+      agentTeam.addTools(packageJSON.name, tools);
       agentTeam.addChatCommands(chatCommands);
       agentTeam.addServices(new AudioService());
     }
@@ -28,7 +28,7 @@ export const packageInfo: TokenRingPackage = {
       agentTeam.services.requireItemByType(AudioService).setActiveProvider(config.defaultProvider);
     }
   }
-};
+} as TokenRingPackage;
 
 export {default as AudioService} from "./AudioService.ts";
 export {default as AudioProvider} from "./AudioProvider.ts";
