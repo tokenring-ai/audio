@@ -13,6 +13,7 @@ export interface PlaybackOptions {
 
 export interface TranscriptionOptions {
   model?: string;
+  prompt?: string;
   language?: string;
   timestampGranularity?: string;
   timeout?: number;

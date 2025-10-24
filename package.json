@@ -4,6 +4,7 @@
  "description": "Voice recording, playback, and speech processing for the TokenRing ecosystem",
  "dependencies": {
   "@tokenring-ai/agent": "0.1.0",
+  "@tokenring-ai/utility": "0.1.0",
   "zod": "^4.0.17"
  },
  "exports": {
