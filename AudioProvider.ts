@@ -1,3 +1,5 @@
+import { TranscriptionResult } from "@tokenring-ai/ai-client/client/AITranscriptionClient";
+
 export interface RecordingOptions {
   sampleRate?: number;
   channels?: number;
@@ -29,10 +31,6 @@ export interface TextToSpeechOptions {
 
 export interface RecordingResult {
   filePath: string;
-}
-
-export interface TranscriptionResult {
-  text: string;
 }
 
 export interface AudioResult {

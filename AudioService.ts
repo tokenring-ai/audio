@@ -7,9 +7,9 @@ import AudioProvider, {
   type TranscriptionOptions,
   type TextToSpeechOptions,
   type RecordingResult,
-  type TranscriptionResult,
   type AudioResult
 } from "./AudioProvider.js";
+import { TranscriptionResult } from "@tokenring-ai/ai-client/client/AITranscriptionClient";
 
 export default class AudioService implements TokenRingService {
   name = "AudioService";
