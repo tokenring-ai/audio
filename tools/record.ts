@@ -18,11 +18,11 @@ export async function execute(
   },
   agent: Agent,
 ): Promise<{ filePath: string }> {
-  
+
   const voiceService = agent.requireServiceByType(AudioService);
 
   agent.infoLine(`[${name}] Starting recording...`);
-  
+
   const abortController = new AbortController();
   // Set timeout if provided
   if (timeout) {
@@ -34,8 +34,8 @@ export async function execute(
     channels,
     format
   });
-  
-  return { filePath: result.filePath };
+
+  return {filePath: result.filePath};
 }
 
 export const description = "Record audio using the active voice provider";

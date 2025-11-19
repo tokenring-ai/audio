@@ -1,4 +1,4 @@
-import { TranscriptionResult } from "@tokenring-ai/ai-client/client/AITranscriptionClient";
+import {TranscriptionResult} from "@tokenring-ai/ai-client/client/AITranscriptionClient";
 
 export interface RecordingOptions {
   sampleRate?: number;
@@ -39,10 +39,10 @@ export interface AudioResult {
 
 export default abstract class AudioProvider {
   abstract record(abortSignal: AbortSignal, options?: RecordingOptions): Promise<RecordingResult>;
-  
+
   abstract transcribe(audioFile: any, options?: TranscriptionOptions): Promise<TranscriptionResult>;
-  
+
   abstract speak(text: string, options?: TextToSpeechOptions): Promise<AudioResult>;
-  
+
   abstract playback(filename: string, options?: PlaybackOptions): Promise<string>;
 }

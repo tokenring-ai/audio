@@ -1,15 +1,15 @@
 import {Agent} from "@tokenring-ai/agent";
 import {TokenRingService} from "@tokenring-ai/agent/types";
+import {TranscriptionResult} from "@tokenring-ai/ai-client/client/AITranscriptionClient";
 import KeyedRegistryWithSingleSelection from "@tokenring-ai/utility/KeyedRegistryWithSingleSelection";
 import AudioProvider, {
-  type RecordingOptions,
+  type AudioResult,
   type PlaybackOptions,
-  type TranscriptionOptions,
-  type TextToSpeechOptions,
+  type RecordingOptions,
   type RecordingResult,
-  type AudioResult
+  type TextToSpeechOptions,
+  type TranscriptionOptions
 } from "./AudioProvider.js";
-import { TranscriptionResult } from "@tokenring-ai/ai-client/client/AITranscriptionClient";
 
 export default class AudioService implements TokenRingService {
   name = "AudioService";

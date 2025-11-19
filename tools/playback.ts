@@ -16,7 +16,7 @@ export async function execute(
   },
   agent: Agent,
 ): Promise<{ filePath: string }> {
-  
+
   const voiceService = agent.requireServiceByType(AudioService);
 
   if (!filename) {
@@ -28,8 +28,8 @@ export async function execute(
     sampleRate,
     channels
   });
-  
-  return { filePath: result };
+
+  return {filePath: result};
 }
 
 export const description = "Play audio file using the active voice provider";

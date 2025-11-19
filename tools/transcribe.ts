@@ -18,7 +18,7 @@ export async function execute(
   },
   agent: Agent,
 ): Promise<{ text: string }> {
-  
+
   const voiceService = agent.requireServiceByType(AudioService);
 
   if (!audioFile) {
@@ -31,8 +31,8 @@ export async function execute(
     language,
     timestampGranularity
   });
-  
-  return { text: result.text };
+
+  return {text: result.text};
 }
 
 export const description = "Transcribe audio using the active voice provider";

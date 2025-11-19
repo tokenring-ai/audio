@@ -42,32 +42,32 @@ interface VoiceArgs {
 }
 
 function parseVoiceArgs(args: string[]): VoiceArgs {
-  const { values, positionals } = parseArgs({
+  const {values, positionals} = parseArgs({
     args,
     options: {
-      model: { type: 'string' },
-      voice: { type: 'string' },
-      speed: { type: 'string' },
-      format: { type: 'string' },
-      language: { type: 'string' }
+      model: {type: 'string'},
+      voice: {type: 'string'},
+      speed: {type: 'string'},
+      format: {type: 'string'},
+      language: {type: 'string'}
     },
     allowPositionals: true,
     strict: false
   });
 
   const flags: VoiceArgs["flags"] = {};
-  
+
   if (values.model) flags.model = values.model as string;
   if (values.voice) flags.voice = values.voice as string;
   if (values.speed) flags.speed = Number(values.speed);
   if (values.format) flags.format = values.format as string;
   if (values.language) flags.language = values.language as string;
 
-  return { flags, rest: positionals };
+  return {flags, rest: positionals};
 }
 
 export async function execute(remainder: string, agent: Agent): Promise<void> {
-  
+
   const voiceService = agent.requireServiceByType(AudioService);
 
   const [sub, ...rest] = remainder.trim().split(/\s+/);
@@ -82,7 +82,7 @@ export async function execute(remainder: string, agent: Agent): Promise<void> {
   if (sub === "record") {
     const abortController = new AbortController();
     agent.infoLine("Recording... Press Ctrl+C to stop");
-    
+
     const result = await voiceService.record(abortController.signal, {
       format: flags.format
     });

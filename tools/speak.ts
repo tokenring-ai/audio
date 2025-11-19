@@ -20,7 +20,7 @@ export async function execute(
   },
   agent: Agent,
 ): Promise<{ data: any }> {
-  
+
   const voiceService = agent.requireServiceByType(AudioService);
 
   if (!text) {
@@ -34,8 +34,8 @@ export async function execute(
     speed,
     format
   });
-  
-  return { data: result.data };
+
+  return {data: result.data};
 }
 
 export const description = "Convert text to speech using the active voice provider";
