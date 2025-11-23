@@ -1,6 +1,6 @@
 import {Agent} from "@tokenring-ai/agent";
-import {TokenRingService} from "@tokenring-ai/agent/types";
 import {TranscriptionResult} from "@tokenring-ai/ai-client/client/AITranscriptionClient";
+import {TokenRingService} from "@tokenring-ai/app/types";
 import KeyedRegistryWithSingleSelection from "@tokenring-ai/utility/registry/KeyedRegistryWithSingleSelection";
 import AudioProvider, {
   type AudioResult,

@@ -1,8 +1,9 @@
 import Agent from "@tokenring-ai/agent/Agent";
+import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {parseArgs} from "node:util";
 import AudioService from "../AudioService.js";
 
-export const description = "/voice [action] - Voice operations";
+const description = "/voice [action] - Voice operations";
 
 export function help(): Array<string> {
   return [
@@ -66,7 +67,7 @@ function parseVoiceArgs(args: string[]): VoiceArgs {
   return {flags, rest: positionals};
 }
 
-export async function execute(remainder: string, agent: Agent): Promise<void> {
+async function execute(remainder: string, agent: Agent): Promise<void> {
 
   const voiceService = agent.requireServiceByType(AudioService);
 
@@ -135,3 +136,8 @@ export async function execute(remainder: string, agent: Agent): Promise<void> {
     agent.infoLine("Unknown action. Use: record, transcribe, speak, playback, provider");
   }
 }
+export default {
+  description,
+  execute,
+  help,
+} as TokenRingAgentCommand

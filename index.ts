@@ -1,5 +1,7 @@
-import {AgentCommandService, AgentTeam, TokenRingPackage} from "@tokenring-ai/agent";
+import TokenRingApp from "@tokenring-ai/app"; 
+import {AgentCommandService} from "@tokenring-ai/agent";
 import {ChatService} from "@tokenring-ai/chat";
+import {TokenRingPlugin} from "@tokenring-ai/app";
 import {z} from "zod";
 import AudioService from "./AudioService.ts";
 import * as chatCommands from "./chatCommands.ts";
@@ -15,25 +17,25 @@ export default {
   name: packageJSON.name,
   version: packageJSON.version,
   description: packageJSON.description,
-  install(agentTeam: AgentTeam) {
-    const config = agentTeam.getConfigSlice('audio', AudioConfigSchema);
+  install(app: TokenRingApp) {
+    const config = app.getConfigSlice('audio', AudioConfigSchema);
     if (config) {
-      agentTeam.waitForService(ChatService, chatService =>
+      app.waitForService(ChatService, chatService =>
         chatService.addTools(packageJSON.name, tools)
       );
-      agentTeam.waitForService(AgentCommandService, agentCommandService =>
+      app.waitForService(AgentCommandService, agentCommandService =>
         agentCommandService.addAgentCommands(chatCommands)
       );
-      agentTeam.addServices(new AudioService());
+      app.addServices(new AudioService());
     }
   },
-  start(agentTeam: AgentTeam) {
-    const config = agentTeam.getConfigSlice('audio', AudioConfigSchema);
+  start(app: TokenRingApp) {
+    const config = app.getConfigSlice('audio', AudioConfigSchema);
     if (config?.defaultProvider) {
-      agentTeam.requireService(AudioService).setActiveProvider(config.defaultProvider);
+      app.requireService(AudioService).setActiveProvider(config.defaultProvider);
     }
   }
-} as TokenRingPackage;
+} as TokenRingPlugin;
 
 export {default as AudioService} from "./AudioService.ts";
 export {default as AudioProvider} from "./AudioProvider.ts";

@@ -1,21 +1,17 @@
 import Agent from "@tokenring-ai/agent/Agent";
+import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
 import {z} from "zod";
 import AudioService from "../AudioService.js";
 
-export const name = "voice/record";
+const name = "voice/record";
 
-export async function execute(
+async function execute(
   {
     sampleRate,
     channels,
     format,
     timeout
-  }: {
-    sampleRate?: number;
-    channels?: number;
-    format?: string;
-    timeout?: number;
-  },
+  }: z.infer<typeof inputSchema>,
   agent: Agent,
 ): Promise<{ filePath: string }> {
 
@@ -38,11 +34,15 @@ export async function execute(
   return {filePath: result.filePath};
 }
 
-export const description = "Record audio using the active voice provider";
+const description = "Record audio using the active voice provider";
 
-export const inputSchema = z.object({
+const inputSchema = z.object({
   sampleRate: z.number().optional().describe("Sample rate for recording"),
   channels: z.number().optional().describe("Number of audio channels"),
   format: z.string().optional().describe("Audio format"),
   timeout: z.number().optional().describe("Recording timeout in milliseconds"),
 });
+
+export default {
+  name, description, inputSchema, execute,
+} as TokenRingToolDefinition<typeof inputSchema>;

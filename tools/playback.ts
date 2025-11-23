@@ -1,19 +1,16 @@
 import Agent from "@tokenring-ai/agent/Agent";
+import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
 import {z} from "zod";
 import AudioService from "../AudioService.js";
 
-export const name = "voice/playback";
+const name = "voice/playback";
 
-export async function execute(
+async function execute(
   {
     filename,
     sampleRate,
     channels
-  }: {
-    filename?: string;
-    sampleRate?: number;
-    channels?: number;
-  },
+  }: z.infer<typeof inputSchema>,
   agent: Agent,
 ): Promise<{ filePath: string }> {
 
@@ -32,10 +29,14 @@ export async function execute(
   return {filePath: result};
 }
 
-export const description = "Play audio file using the active voice provider";
+const description = "Play audio file using the active voice provider";
 
-export const inputSchema = z.object({
+const inputSchema = z.object({
   filename: z.string().min(1).describe("Audio filename to play"),
   sampleRate: z.number().optional().describe("Sample rate for playback"),
   channels: z.number().optional().describe("Number of audio channels"),
 });
+
+export default {
+  name, description, inputSchema, execute,
+} as TokenRingToolDefinition<typeof inputSchema>;

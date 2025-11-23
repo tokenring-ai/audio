@@ -1,1 +1,1 @@
-export * as voice from "./chatCommands/voice.ts";
+export {default as voice} from "./chatCommands/voice.ts";
