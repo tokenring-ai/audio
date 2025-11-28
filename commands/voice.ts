@@ -3,33 +3,81 @@ import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {parseArgs} from "node:util";
 import AudioService from "../AudioService.js";
 
-const description = "/voice [action] - Voice operations";
+const description = "/voice - Voice operations";
 
-export function help(): Array<string> {
-  return [
-    "/voice [action] <text/filename> [options] - Voice operations",
-    "  Actions:",
-    "    record          - Record audio from microphone",
-    "    transcribe <file> - Transcribe audio file",
-    "    speak <text>    - Convert text to speech",
-    "    playback <file> - Play audio file",
-    "    provider [name] - Show/set active provider",
-    "",
-    "  Options:",
-    "    --model <name>     - Model to use",
-    "    --voice <id>       - Voice ID",
-    "    --speed <n>        - Speech speed",
-    "    --format <fmt>     - Audio format",
-    "    --language <code>  - Language code",
-    "",
-    "  Examples:",
-    "    /voice record",
-    "    /voice transcribe recording.wav",
-    "    /voice speak \"Hello world\"",
-    "    /voice playback output.mp3",
-    "    /voice provider openai",
-  ];
-}
+const help: string = `# /voice - Voice operations
+
+## Available Actions
+
+### record
+Record audio from microphone
+- Records audio and saves to file
+- Press Ctrl+C to stop recording
+
+### transcribe <file>
+Transcribe audio file to text
+- Supports various audio formats
+- Uses speech-to-text conversion
+
+### speak <text>
+Convert text to speech
+- Generate audio from text input
+- Supports multiple voices and languages
+
+### playback <file>
+Play audio file
+- Play audio files through system speakers
+- Supports common audio formats
+
+### provider [name]
+Show or set active audio provider
+- View available providers: \`/voice provider\`
+- Set provider: \`/voice provider <name>\`
+
+## Options (Flags)
+
+- **--model <name>** - Specify AI model for processing (e.g., whisper, gpt-4, custom-model)
+- **--voice <id>** - Voice ID for text-to-speech (available voices depend on provider)
+- **--speed <n>** - Speech speed multiplier (1.0 = normal, 0.5 = half, 2.0 = double)
+- **--format <fmt>** - Audio output format (mp3, wav, ogg, aac)
+- **--language <code>** - Language code for transcription (e.g., en-US, es-ES, fr-FR, de-DE)
+
+## Usage Examples
+
+# Basic recording
+/voice record
+
+# Transcribe audio file
+/voice transcribe recording.wav
+/voice transcribe audio.mp3 --language en-US
+
+# Convert text to speech
+/voice speak "Hello, how are you today?"
+/voice speak "Welcome to our system" --voice female --speed 1.2
+
+# Play audio file
+/voice playback output.mp3
+/voice playback notification.wav --format wav
+
+# Manage providers
+/voice provider                    # Show current and available providers
+/voice provider openai            # Set OpenAI as active provider
+/voice provider azure             # Set Azure as active provider
+
+## Common Use Cases
+
+- Meeting recordings: \`/voice transcribe meeting.wav --language en-US\`
+- Voice messages: \`/voice speak "Your message here" --voice male\`
+- Audio notes: \`/voice record\`, then \`/voice transcribe notes.wav\`
+- Content creation: \`/voice speak "Article content" --format mp3\`
+
+## Tips
+
+- Use short, clear text for best speech synthesis results
+- Ensure audio files are in supported formats for transcription
+- Check available providers and voices with \`/voice provider\`
+- Experiment with different speeds for natural-sounding speech
+- Use appropriate language codes for accurate transcription`;
 
 interface VoiceArgs {
   flags: {
@@ -73,7 +121,7 @@ async function execute(remainder: string, agent: Agent): Promise<void> {
 
   const [sub, ...rest] = remainder.trim().split(/\s+/);
   if (!sub) {
-    help().forEach((l) => agent.infoLine(l));
+    agent.chatOutput(help);
     return;
   }
 
