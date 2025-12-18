@@ -31,4 +31,4 @@ export default {
       app.requireService(AudioService).setActiveProvider(config.defaultProvider);
     }
   }
-} as TokenRingPlugin;
+} satisfies TokenRingPlugin;
