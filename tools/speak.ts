@@ -3,7 +3,7 @@ import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
 import {z} from "zod";
 import AudioService from "../AudioService.js";
 
-const name = "voice/speak";
+const name = "voice_speak";
 
 async function execute(
   {
