@@ -15,17 +15,22 @@ The `@tokenring-ai/audio` package provides a comprehensive audio framework for t
 - **Provider Architecture**: Support for multiple audio provider implementations
 - **Chat Integration**: Built-in chat commands and tools for agent interactions
 - **Type Safety**: Full TypeScript support with Zod validation
+- **Service Integration**: Seamless integration with TokenRing service architecture
+- **Plugin System**: Automatic service and tool registration via TokenRing plugin
 
 ## Installation
 
 ```bash
-npm install @tokenring-ai/audio
+bun install @tokenring-ai/audio
 ```
 
 ## Dependencies
 
-- `@tokenring-ai/agent` ^0.1.0 - Agent command system integration
-- `@tokenring-ai/utility` ^0.1.0 - Utility functions and registry system
+- `@tokenring-ai/agent` ^0.2.0 - Agent command system integration
+- `@tokenring-ai/app` ^0.2.0 - Application framework and service management
+- `@tokenring-ai/chat` ^0.2.0 - Chat service integration
+- `@tokenring-ai/ai-client` ^0.2.0 - AI client for transcription
+- `@tokenring-ai/utility` ^0.2.0 - Utility functions and registry system
 - `zod` ^4.1.12 - Schema validation
 
 ## Configuration
@@ -52,7 +57,10 @@ const audioConfig = {
 The main service class that manages audio operations and provider registry:
 
 ```typescript
-import AudioService from '@tokenring-ai/audio';
+import { AudioService } from '@tokenring-ai/audio';
+
+// Initialize audio service (typically via TokenRing plugin)
+const audioService = agent.requireServiceByType(AudioService);
 
 // Get available providers
 const providers = audioService.getAvailableProviders();
@@ -229,6 +237,7 @@ app.registerPlugin(audioPlugin);
 - Requires `ChatService` for tool integration
 - Requires `AgentCommandService` for chat command integration
 - Provides `AudioService` for audio operations
+- Uses `TokenRingApp` configuration system
 
 ## Type Definitions
 
@@ -280,14 +289,8 @@ interface PlaybackOptions {
 ```typescript
 import { AudioService } from '@tokenring-ai/audio';
 
-// Initialize audio service
-const audioService = new AudioService();
-
-// Register a provider
-audioService.registerProvider('openai', new OpenAIAudioProvider());
-
-// Set active provider
-audioService.setActiveProvider('openai');
+// Initialize audio service (via TokenRing plugin)
+const audioService = agent.requireServiceByType(AudioService);
 
 // Record audio
 const recording = await audioService.record(new AbortController().signal);
@@ -312,20 +315,44 @@ console.log('Speech generated:', speech.data);
 /voice playback greeting.mp3
 ```
 
-## License
+### Provider Management
 
-MIT License - see LICENSE file for details
+```typescript
+// List available providers
+/voice provider
 
-## Contributing
+// Switch to a different provider
+/voice provider openai
+/voice provider azure
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Implement your changes
-4. Add tests if applicable
-5. Submit a pull request
+## Package Structure
+
+```
+pkg/audio/
+├── index.ts                 # Main exports and configuration schema
+├── AudioService.ts          # Main audio service implementation
+├── AudioProvider.ts         # Abstract base class for providers
+├── tools.ts                 # Tool registry
+├── tools/
+│   ├── record.ts           # Voice recording tool
+│   ├── transcribe.ts       # Audio transcription tool
+│   ├── speak.ts            # Text-to-speech tool
+│   └── playback.ts         # Audio playback tool
+├── chatCommands.ts          # Chat command registry
+├── commands/
+│   └── voice.ts            # Voice command implementation
+├── plugin.ts               # TokenRing plugin for service registration
+└── package.json            # Package manifest
+```
 
 ## Related Packages
 
 - `@tokenring-ai/linux-audio` - Linux-specific audio provider implementation
 - `@tokenring-ai/agent` - Agent command system
 - `@tokenring-ai/chat` - Chat service integration
+- `@tokenring-ai/app` - Application framework
+
+## License
+
+MIT License - see LICENSE file for details
