@@ -282,6 +282,20 @@ interface PlaybackOptions {
 }
 ```
 
+### RecordingResult
+```typescript
+interface RecordingResult {
+  filePath: string;        // Path to recorded audio file
+}
+```
+
+### AudioResult
+```typescript
+interface AudioResult {
+  data: any;               // Audio data (format depends on provider)
+}
+```
+
 ## Examples
 
 ### Basic Usage
