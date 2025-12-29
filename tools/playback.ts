@@ -8,8 +8,6 @@ const name = "voice_playback";
 async function execute(
   {
     filename,
-    sampleRate,
-    channels
   }: z.infer<typeof inputSchema>,
   agent: Agent,
 ): Promise<{ filePath: string }> {
@@ -21,10 +19,7 @@ async function execute(
   }
 
   agent.infoLine(`[${name}] Playing audio: ${filename}`);
-  const result = await voiceService.playback(filename, {
-    sampleRate,
-    channels
-  });
+  const result = await voiceService.getActiveProvider(agent).playback(filename);
 
   return {filePath: result};
 }
@@ -33,8 +28,6 @@ const description = "Play audio file using the active voice provider";
 
 const inputSchema = z.object({
   filename: z.string().min(1).describe("Audio filename to play"),
-  sampleRate: z.number().optional().describe("Sample rate for playback"),
-  channels: z.number().optional().describe("Number of audio channels"),
 });
 
 export default {

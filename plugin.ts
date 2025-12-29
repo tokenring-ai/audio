@@ -9,7 +9,7 @@ import packageJSON from './package.json' with {type: 'json'};
 import tools from "./tools.ts";
 
 const packageConfigSchema = z.object({
-  audio: AudioConfigSchema,
+  audio: AudioConfigSchema.optional(),
 })
 
 
@@ -18,20 +18,14 @@ export default {
   version: packageJSON.version,
   description: packageJSON.description,
   install(app, config) {
-    if (config.audio) {
-      app.waitForService(ChatService, chatService =>
-        chatService.addTools(packageJSON.name, tools)
-      );
-      app.waitForService(AgentCommandService, agentCommandService =>
-        agentCommandService.addAgentCommands(chatCommands)
-      );
-      app.addServices(new AudioService());
-    }
-  },
-  start(app: TokenRingApp, config) {
-    if (config.audio?.defaultProvider) {
-      app.requireService(AudioService).setActiveProvider(config.audio.defaultProvider);
-    }
+    if (! config.audio) return;
+    app.addServices(new AudioService(config.audio));
+    app.waitForService(ChatService, chatService =>
+      chatService.addTools(packageJSON.name, tools)
+    );
+    app.waitForService(AgentCommandService, agentCommandService =>
+      agentCommandService.addAgentCommands(chatCommands)
+    );
   },
   config: packageConfigSchema
 } satisfies TokenRingPlugin<typeof packageConfigSchema>;

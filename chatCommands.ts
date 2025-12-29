@@ -1,3 +1,3 @@
-import voice from "./commands/voice.ts";
+import audio from './commands/audio.ts'
 
-export default { voice };
+export default { audio };

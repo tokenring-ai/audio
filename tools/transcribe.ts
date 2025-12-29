@@ -8,9 +8,7 @@ const name = "voice_transcribe";
 async function execute(
   {
     audioFile,
-    model,
     language,
-    timestampGranularity
   }: z.infer<typeof inputSchema>,
   agent: Agent,
 ): Promise<{ text: string }> {
@@ -22,11 +20,9 @@ async function execute(
   }
 
   agent.infoLine(`[${name}] Transcribing audio...`);
-  const result = await voiceService.transcribe(audioFile, {
-    model,
+  const result = await voiceService.convertAudioToText(audioFile, {
     language,
-    timestampGranularity
-  });
+  }, agent);
 
   return {text: result.text};
 }
@@ -35,9 +31,7 @@ const description = "Transcribe audio using the active voice provider";
 
 const inputSchema = z.object({
   audioFile: z.any().describe("Audio file to transcribe"),
-  model: z.string().optional().describe("Transcription model"),
-  language: z.string().optional().describe("Language code"),
-  timestampGranularity: z.string().optional().describe("Timestamp granularity"),
+  language: z.string().describe("Language to transcribe the audio to"),
 });
 
 export default {

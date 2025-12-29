@@ -1,5 +1,7 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingToolDefinition} from "@tokenring-ai/chat/types";
+import fs from "node:fs";
+import path from "path";
 import {z} from "zod";
 import AudioService from "../AudioService.js";
 
@@ -8,39 +10,38 @@ const name = "voice_speak";
 async function execute(
   {
     text,
-    model,
-    voice,
+    //voice,
     speed,
-    format
   }: z.infer<typeof inputSchema>,
   agent: Agent,
-): Promise<{ data: any }> {
+): Promise<string> {
 
-  const voiceService = agent.requireServiceByType(AudioService);
+  const audioService = agent.requireServiceByType(AudioService);
 
   if (!text) {
     throw new Error(`[${name}] text is required`);
   }
 
   agent.infoLine(`[${name}] Converting text to speech...`);
-  const result = await voiceService.speak(text, {
-    model,
-    voice,
+  const result = await audioService.convertTextToSpeech(text, {
+    //voice,
     speed,
-    format
-  });
+  }, agent);
 
-  return {data: result.data};
+  const tmpFile = path.join(audioService.options.tmpDirectory, `speech-${Date.now()}.mp3`);
+  fs.writeFileSync(tmpFile, result.data);
+
+  await audioService.getActiveProvider(agent).playback(tmpFile);
+
+  return "Playback succeeded";
 }
 
 const description = "Convert text to speech using the active voice provider";
 
 const inputSchema = z.object({
   text: z.string().min(1).describe("Text to convert to speech"),
-  model: z.string().optional().describe("TTS model"),
-  voice: z.string().optional().describe("Voice ID"),
+  //voice: z.string().optional().describe("Voice ID"),
   speed: z.number().optional().describe("Speech speed"),
-  format: z.string().optional().describe("Audio format"),
 });
 
 export default {

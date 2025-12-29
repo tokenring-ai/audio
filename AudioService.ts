@@ -1,41 +1,77 @@
 import {Agent} from "@tokenring-ai/agent";
 import {TranscriptionResult} from "@tokenring-ai/ai-client/client/AITranscriptionClient";
+import {SpeechModelRegistry, TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {TokenRingService} from "@tokenring-ai/app/types";
-import KeyedRegistryWithSingleSelection from "@tokenring-ai/utility/registry/KeyedRegistryWithSingleSelection";
-import AudioProvider, {
-  type AudioResult,
-  type PlaybackOptions,
-  type RecordingOptions,
-  type RecordingResult,
-  type TextToSpeechOptions,
-  type TranscriptionOptions
-} from "./AudioProvider.js";
+import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
+import fs from "node:fs";
+import path from "path";
+import {z} from "zod";
+import {AudioAgentConfigSchema, AudioConfigSchema} from "./schema.ts";
+import {AudioState} from "./state/audioState.ts";
+import {AudioProvider, AudioResult, RecordingOptions, RecordingResult} from "./AudioProvider.ts";
 
 export default class AudioService implements TokenRingService {
   name = "AudioService";
   description = "Service for Audio Operations";
-  protected agent!: Agent;
 
-  private providerRegistry = new KeyedRegistryWithSingleSelection<AudioProvider>();
+  private providerRegistry = new KeyedRegistry<AudioProvider>();
 
   registerProvider = this.providerRegistry.register;
-  getActiveProvider = this.providerRegistry.getActiveItem;
-  setActiveProvider = this.providerRegistry.setEnabledItem;
   getAvailableProviders = this.providerRegistry.getAllItemNames;
 
-  async record(abortSignal: AbortSignal, options?: RecordingOptions): Promise<RecordingResult> {
-    return this.providerRegistry.getActiveItem().record(abortSignal, options);
+  constructor(readonly options: z.output<typeof AudioConfigSchema>) {}
+
+  async attach(agent: Agent): Promise<void> {
+    const agentConfig = agent.getAgentConfigSlice('audio', AudioAgentConfigSchema);
+    agent.initializeState(AudioState, agentConfig);
   }
 
-  async transcribe(audioFile: any, options?: TranscriptionOptions): Promise<TranscriptionResult> {
-    return this.providerRegistry.getActiveItem().transcribe(audioFile, options);
+  getActiveProvider(agent: Agent): AudioProvider {
+    const providerName = agent.getState(AudioState).activeProvider ?? this.options.defaultProvider;
+    return this.providerRegistry.requireItemByName(providerName);
   }
 
-  async speak(text: string, options?: TextToSpeechOptions): Promise<AudioResult> {
-    return this.providerRegistry.getActiveItem().speak(text, options);
+  setActiveProvider(name: string, agent: Agent): void {
+    agent.mutateState(AudioState, (state) => {
+      state.activeProvider = name;
+    });
   }
 
-  async playback(filename: string, options?: PlaybackOptions): Promise<string> {
-    return this.providerRegistry.getActiveItem().playback(filename, options);
+  async convertAudioToText(audioFile: any, { language } : { language?: string }, agent: Agent): Promise<TranscriptionResult> {
+    const transcriptionModelRegistry = agent.requireServiceByType(TranscriptionModelRegistry);
+    const { transcribe } = agent.getState(AudioState)
+    const client = await transcriptionModelRegistry.getClient(transcribe.model);
+
+    const audioBuffer = typeof audioFile === 'string'
+      ? fs.readFileSync(audioFile)
+      : audioFile;
+
+    const [text] = await client.transcribe(
+      {
+        audio: audioBuffer,
+        language: language ?? transcribe.language,
+        prompt: transcribe.prompt,
+      },
+      agent
+    );
+
+    return {text};
+  }
+
+  async convertTextToSpeech(text: string, { voice, speed } : { voice?:string, speed?:number }, agent: Agent): Promise<AudioResult> {
+    const speechModelRegistry = agent.requireServiceByType(SpeechModelRegistry);
+    const { speech } = agent.getState(AudioState);
+    const client = await speechModelRegistry.getClient(speech.model);
+
+    const [audioData] = await client.generateSpeech(
+      {
+        text,
+        voice: voice ?? speech.voice,
+        speed: speed ?? speech.speed
+      },
+      agent
+    );
+
+    return {data: audioData};
   }
 }

@@ -20,12 +20,11 @@ async function execute(
   agent.infoLine(`[${name}] Starting recording...`);
 
   const abortController = new AbortController();
-  // Set timeout if provided
   if (timeout) {
     setTimeout(() => abortController.abort(), timeout);
   }
 
-  const result = await voiceService.record(abortController.signal, {
+  const result = await voiceService.getActiveProvider(agent).record(abortController.signal, {
     sampleRate,
     channels,
     format
