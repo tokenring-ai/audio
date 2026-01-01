@@ -24,7 +24,7 @@ async function execute(
     setTimeout(() => abortController.abort(), timeout);
   }
 
-  const result = await voiceService.getActiveProvider(agent).record(abortController.signal, {
+  const result = await voiceService.requireAudioProvider(agent).record(abortController.signal, {
     sampleRate,
     channels,
     format

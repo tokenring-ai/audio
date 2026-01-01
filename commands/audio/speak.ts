@@ -32,7 +32,7 @@ export default async function speak(remainder: string, agent: Agent): Promise<vo
   const tmpFile = path.join(audioService.options.tmpDirectory, `speech-${Date.now()}.mp3`);
   fs.writeFileSync(tmpFile, result.data);
 
-  await audioService.getActiveProvider(agent).playback(tmpFile);
+  await audioService.requireAudioProvider(agent).playback(tmpFile);
   
   agent.infoLine(`Speech generated: ${tmpFile}`);
 }

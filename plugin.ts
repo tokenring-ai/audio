@@ -1,15 +1,15 @@
 import {AgentCommandService} from "@tokenring-ai/agent";
-import TokenRingApp, {TokenRingPlugin} from "@tokenring-ai/app";
+import {TokenRingPlugin} from "@tokenring-ai/app";
 import {ChatService} from "@tokenring-ai/chat";
 import {z} from "zod";
 import AudioService from "./AudioService.ts";
 import chatCommands from "./chatCommands.ts";
-import {AudioConfigSchema} from "./index.ts";
+import {AudioServiceConfigSchema} from "./index.ts";
 import packageJSON from './package.json' with {type: 'json'};
 import tools from "./tools.ts";
 
 const packageConfigSchema = z.object({
-  audio: AudioConfigSchema.optional(),
+  audio: AudioServiceConfigSchema.optional(),
 })
 
 

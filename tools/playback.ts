@@ -19,7 +19,7 @@ async function execute(
   }
 
   agent.infoLine(`[${name}] Playing audio: ${filename}`);
-  const result = await voiceService.getActiveProvider(agent).playback(filename);
+  const result = await voiceService.requireAudioProvider(agent).playback(filename);
 
   return {filePath: result};
 }

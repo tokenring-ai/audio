@@ -12,17 +12,21 @@ export const AudioSpeechConfigSchema = z.object({
   speed: z.number().default(1.0),
 })
 
-export const AudioConfigSchema = z.object({
-  defaultProvider: z.string(),
-  tmpDirectory: z.string().default('/tmp'),
-  providers: z.record(z.string(), z.any())
-});
-
 export const AudioAgentConfigSchema = z.object({
   provider: z.string().optional(),
-  transcribe: AudioTranscriptionConfigSchema.default(AudioTranscriptionConfigSchema.parse({})),
-  speech: AudioSpeechConfigSchema.default(AudioSpeechConfigSchema.parse({}))
-}).default({
-  transcribe: AudioTranscriptionConfigSchema.parse({}),
-  speech: AudioSpeechConfigSchema.parse({})
+  transcribe: AudioTranscriptionConfigSchema.optional(),
+  speech: AudioSpeechConfigSchema.optional()
+}).prefault({})
+
+export const AudioAgentDefaultsSchema = z.object({
+  provider: z.string(),
+  transcribe: AudioTranscriptionConfigSchema.prefault({}),
+  speech: AudioSpeechConfigSchema.prefault({}),
 });
+
+export const AudioServiceConfigSchema = z.object({
+  tmpDirectory: z.string().default('/tmp'),
+  providers: z.record(z.string(), z.any()),
+  agentDefaults: AudioAgentDefaultsSchema
+});
+

@@ -17,7 +17,7 @@ export default async function record(remainder: string, agent: Agent): Promise<v
   const abortController = new AbortController();
   agent.infoLine("Recording... Press Ctrl+C to stop");
 
-  const result = await audioService.getActiveProvider(agent).record(abortController.signal, {
+  const result = await audioService.requireAudioProvider(agent).record(abortController.signal, {
     format: values.format as string
   });
   

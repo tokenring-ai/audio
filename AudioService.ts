@@ -2,13 +2,13 @@ import {Agent} from "@tokenring-ai/agent";
 import {TranscriptionResult} from "@tokenring-ai/ai-client/client/AITranscriptionClient";
 import {SpeechModelRegistry, TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {TokenRingService} from "@tokenring-ai/app/types";
+import deepMerge from "@tokenring-ai/utility/object/deepMerge";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
 import fs from "node:fs";
-import path from "path";
 import {z} from "zod";
-import {AudioAgentConfigSchema, AudioConfigSchema} from "./schema.ts";
+import {AudioAgentConfigSchema, AudioServiceConfigSchema} from "./schema.ts";
 import {AudioState} from "./state/audioState.ts";
-import {AudioProvider, AudioResult, RecordingOptions, RecordingResult} from "./AudioProvider.ts";
+import {AudioProvider, AudioResult} from "./AudioProvider.ts";
 
 export default class AudioService implements TokenRingService {
   name = "AudioService";
@@ -19,15 +19,16 @@ export default class AudioService implements TokenRingService {
   registerProvider = this.providerRegistry.register;
   getAvailableProviders = this.providerRegistry.getAllItemNames;
 
-  constructor(readonly options: z.output<typeof AudioConfigSchema>) {}
+  constructor(readonly options: z.output<typeof AudioServiceConfigSchema>) {}
 
   async attach(agent: Agent): Promise<void> {
-    const agentConfig = agent.getAgentConfigSlice('audio', AudioAgentConfigSchema);
+    const agentConfig = deepMerge(this.options.agentDefaults, agent.getAgentConfigSlice('audio', AudioAgentConfigSchema));
     agent.initializeState(AudioState, agentConfig);
   }
 
-  getActiveProvider(agent: Agent): AudioProvider {
-    const providerName = agent.getState(AudioState).activeProvider ?? this.options.defaultProvider;
+  requireAudioProvider(agent: Agent): AudioProvider {
+    const providerName = agent.getState(AudioState).activeProvider;
+    if (! providerName) throw new Error("No audio provider has been enabled.");
     return this.providerRegistry.requireItemByName(providerName);
   }
 
