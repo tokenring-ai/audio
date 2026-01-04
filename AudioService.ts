@@ -21,7 +21,7 @@ export default class AudioService implements TokenRingService {
 
   constructor(readonly options: z.output<typeof AudioServiceConfigSchema>) {}
 
-  async attach(agent: Agent): Promise<void> {
+  attach(agent: Agent): void {
     const agentConfig = deepMerge(this.options.agentDefaults, agent.getAgentConfigSlice('audio', AudioAgentConfigSchema));
     agent.initializeState(AudioState, agentConfig);
   }
