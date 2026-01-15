@@ -6,10 +6,10 @@ export default async function play(remainder: string, agent: Agent): Promise<voi
   const query = remainder.trim();
   
   if (!query) {
-    agent.errorLine("Usage: /audio play <filename> [flags]");
+    agent.errorMessage("Usage: /audio play <filename> [flags]");
     return;
   }
 
   const result = await audioService.requireAudioProvider(agent).playback(query);
-  agent.infoLine(`Played: ${result}`);
+  agent.infoMessage(`Played: ${result}`);
 }

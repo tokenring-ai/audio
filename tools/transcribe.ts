@@ -19,7 +19,7 @@ async function execute(
     throw new Error(`[${name}] audioFile is required`);
   }
 
-  agent.infoLine(`[${name}] Transcribing audio...`);
+  agent.infoMessage(`[${name}] Transcribing audio...`);
   const result = await voiceService.convertAudioToText(audioFile, {
     language,
   }, agent);

@@ -19,7 +19,7 @@ export default async function speak(remainder: string, agent: Agent): Promise<vo
 
   const query = positionals.join(" ");
   if (!query) {
-    agent.errorLine("Usage: /audio speak <text> [flags]");
+    agent.errorMessage("Usage: /audio speak <text> [flags]");
     return;
   }
 
@@ -34,5 +34,5 @@ export default async function speak(remainder: string, agent: Agent): Promise<vo
 
   await audioService.requireAudioProvider(agent).playback(tmpFile);
   
-  agent.infoLine(`Speech generated: ${tmpFile}`);
+  agent.infoMessage(`Speech generated: ${tmpFile}`);
 }

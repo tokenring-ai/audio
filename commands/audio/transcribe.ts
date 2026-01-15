@@ -16,7 +16,7 @@ export default async function transcribe(remainder: string, agent: Agent): Promi
 
   const query = positionals.join(" ");
   if (!query) {
-    agent.errorLine("Usage: /audio transcribe <filename> [flags]");
+    agent.errorMessage("Usage: /audio transcribe <filename> [flags]");
     return;
   }
 
@@ -24,5 +24,5 @@ export default async function transcribe(remainder: string, agent: Agent): Promi
     language: values.language as string
   }, agent);
   
-  agent.infoLine(`Transcription: ${result.text}`);
+  agent.infoMessage(`Transcription: ${result.text}`);
 }

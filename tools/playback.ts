@@ -18,7 +18,7 @@ async function execute(
     throw new Error(`[${name}] filename is required`);
   }
 
-  agent.infoLine(`[${name}] Playing audio: ${filename}`);
+  agent.infoMessage(`[${name}] Playing audio: ${filename}`);
   const result = await voiceService.requireAudioProvider(agent).playback(filename);
 
   return {filePath: result};

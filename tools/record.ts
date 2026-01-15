@@ -17,7 +17,7 @@ async function execute(
 
   const voiceService = agent.requireServiceByType(AudioService);
 
-  agent.infoLine(`[${name}] Starting recording...`);
+  agent.infoMessage(`[${name}] Starting recording...`);
 
   const abortController = new AbortController();
   if (timeout) {

@@ -22,7 +22,7 @@ async function execute(
     throw new Error(`[${name}] text is required`);
   }
 
-  agent.infoLine(`[${name}] Converting text to speech...`);
+  agent.infoMessage(`[${name}] Converting text to speech...`);
   const result = await audioService.convertTextToSpeech(text, {
     //voice,
     speed,

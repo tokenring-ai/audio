@@ -8,8 +8,8 @@ export default async function reset(_remainder: string, agent: Agent): Promise<v
     agent.mutateState(AudioState, (state) => {
       state.speech.model = initialModel;
     });
-    agent.infoLine(`TTS model reset to ${initialModel}`);
+    agent.infoMessage(`TTS model reset to ${initialModel}`);
   } else {
-    agent.errorLine("No initial model configured");
+    agent.errorMessage("No initial model configured");
   }
 }

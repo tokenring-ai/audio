@@ -74,8 +74,8 @@ export default async function select(_remainder: string, agent: Agent): Promise<
     agent.mutateState(AudioState, (state) => {
       state.transcribe.model = selectedModel;
     });
-    agent.infoLine(`STT model set to ${selectedModel}`);
+    agent.infoMessage(`STT model set to ${selectedModel}`);
   } else {
-    agent.infoLine("Model selection cancelled. No changes made.");
+    agent.infoMessage("Model selection cancelled. No changes made.");
   }
 }
