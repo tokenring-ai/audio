@@ -1,13 +1,7 @@
 import {Agent} from "@tokenring-ai/agent";
+import type {TreeLeaf} from "@tokenring-ai/agent/question";
 import {TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {AudioState} from "../../../../state/audioState.js";
-
-interface TreeNode {
-  name: string;
-  value?: string;
-  children?: TreeNode[];
-  hasChildren?: boolean;
-}
 
 export default async function select(_remainder: string, agent: Agent): Promise<void> {
   const transcriptionModelRegistry = agent.requireServiceByType(TranscriptionModelRegistry);
@@ -17,11 +11,8 @@ export default async function select(_remainder: string, agent: Agent): Promise<
     transcriptionModelRegistry.getModelsByProvider(),
   );
 
-  const buildModelTree = (): TreeNode => {
-    const tree: TreeNode = {
-      name: "STT Model Selection",
-      children: [],
-    };
+  const buildModelTree = (): TreeLeaf[] => {
+    const roots: TreeLeaf[] = [];
 
     const sortedProviders = Object.entries(modelsByProvider).sort(([a], [b]) =>
       a.localeCompare(b),
@@ -53,24 +44,29 @@ export default async function select(_remainder: string, agent: Agent): Promise<
       ).length;
       const totalCount = Object.keys(providerModels).length;
 
-      tree.children?.push({
+      roots.push({
         name: `${provider} (${onlineCount}/${totalCount} online)`,
-        hasChildren: true,
         children,
       });
     }
 
-    return tree;
+    return roots;
   };
 
-  const selectedModel = await agent.askHuman({
-    type: "askForSingleTreeSelection",
-    title: "STT Model Selection",
-    message: "Choose an STT model:",
-    tree: buildModelTree(),
+  const selection = await agent.askQuestion({
+    message: "Choose a Speech to Text model:",
+    question: {
+      type: 'treeSelect',
+      label: "Model Selection",
+      key: "result",
+      minimumSelections: 1,
+      maximumSelections: 1,
+      tree: buildModelTree(),
+    }
   });
 
-  if (selectedModel) {
+  if (selection !== null && selection.length > 0) {
+    const selectedModel = selection[0];
     agent.mutateState(AudioState, (state) => {
       state.transcribe.model = selectedModel;
     });

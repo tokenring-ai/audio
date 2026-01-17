@@ -6,9 +6,9 @@ import deepMerge from "@tokenring-ai/utility/object/deepMerge";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
 import fs from "node:fs";
 import {z} from "zod";
+import {AudioProvider, AudioResult} from "./AudioProvider.ts";
 import {AudioAgentConfigSchema, AudioServiceConfigSchema} from "./schema.ts";
 import {AudioState} from "./state/audioState.ts";
-import {AudioProvider, AudioResult} from "./AudioProvider.ts";
 
 export default class AudioService implements TokenRingService {
   name = "AudioService";

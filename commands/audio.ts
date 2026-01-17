@@ -1,10 +1,10 @@
 import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import createSubcommandRouter from "@tokenring-ai/agent/util/subcommandRouter";
-import record from "./audio/record.js";
+import model from "./audio/model.js";
 import play from "./audio/play.js";
+import record from "./audio/record.js";
 import speak from "./audio/speak.js";
 import transcribe from "./audio/transcribe.js";
-import model from "./audio/model.js";
 
 const description = "/audio - Audio operations";
 

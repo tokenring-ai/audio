@@ -2,11 +2,7 @@ import {Agent} from "@tokenring-ai/agent";
 import type {ResetWhat} from "@tokenring-ai/agent/AgentEvents";
 import type {AgentStateSlice} from "@tokenring-ai/agent/types";
 import {z} from "zod";
-import {
-  AudioServiceConfigSchema,
-  AudioSpeechConfigSchema,
-  AudioTranscriptionConfigSchema
-} from "../schema.ts";
+import {AudioServiceConfigSchema, AudioSpeechConfigSchema, AudioTranscriptionConfigSchema} from "../schema.ts";
 
 export class AudioState implements AgentStateSlice {
   name = "AudioState";

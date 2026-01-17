@@ -17,11 +17,8 @@ export default async function select(_remainder: string, agent: Agent): Promise<
     speechModelRegistry.getModelsByProvider(),
   );
 
-  const buildModelTree = (): TreeNode => {
-    const tree: TreeNode = {
-      name: "TTS Model Selection",
-      children: [],
-    };
+  const buildModelTree = (): TreeNode[] => {
+    const roots: TreeNode[] = [];
 
     const sortedProviders = Object.entries(modelsByProvider).sort(([a], [b]) =>
       a.localeCompare(b),
@@ -53,24 +50,30 @@ export default async function select(_remainder: string, agent: Agent): Promise<
       ).length;
       const totalCount = Object.keys(providerModels).length;
 
-      tree.children?.push({
+      roots.push({
         name: `${provider} (${onlineCount}/${totalCount} online)`,
         hasChildren: true,
         children,
       });
     }
 
-    return tree;
+    return roots;
   };
 
-  const selectedModel = await agent.askHuman({
-    type: "askForSingleTreeSelection",
-    title: "TTS Model Selection",
-    message: "Choose a TTS model:",
-    tree: buildModelTree(),
+  const selection = await agent.askQuestion({
+    message: "Choose a Text to Speech model:",
+    question: {
+      type: 'treeSelect',
+      label: "Model Selection",
+      key: "result",
+      minimumSelections: 1,
+      maximumSelections: 1,
+      tree: buildModelTree(),
+    }
   });
 
-  if (selectedModel) {
+  if (selection !== null) {
+    const selectedModel = selection[0];
     agent.mutateState(AudioState, (state) => {
       state.speech.model = selectedModel;
     });
