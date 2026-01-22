@@ -4,8 +4,15 @@ import type {AgentStateSlice} from "@tokenring-ai/agent/types";
 import {z} from "zod";
 import {AudioServiceConfigSchema, AudioSpeechConfigSchema, AudioTranscriptionConfigSchema} from "../schema.ts";
 
-export class AudioState implements AgentStateSlice {
+const serializationSchema = z.object({
+  activeProvider: z.string().nullable(),
+  transcribe: AudioTranscriptionConfigSchema,
+  speech: AudioSpeechConfigSchema
+});
+
+export class AudioState implements AgentStateSlice<typeof serializationSchema> {
   name = "AudioState";
+  serializationSchema = serializationSchema;
   activeProvider: string | null;
   transcribe: z.output<typeof AudioTranscriptionConfigSchema>;
   speech: z.output<typeof AudioSpeechConfigSchema>;
@@ -25,7 +32,7 @@ export class AudioState implements AgentStateSlice {
 
   reset(what: ResetWhat[]): void {}
 
-  serialize(): object {
+  serialize(): z.output<typeof serializationSchema> {
     return {
       activeProvider: this.activeProvider,
       transcribe: this.transcribe,
@@ -33,7 +40,7 @@ export class AudioState implements AgentStateSlice {
     };
   }
 
-  deserialize(data: any): void {
+  deserialize(data: z.output<typeof serializationSchema>): void {
     this.activeProvider = data.activeProvider;
     this.transcribe = data.transcribe;
     this.speech = data.speech;
