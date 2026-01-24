@@ -3,7 +3,8 @@ import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
 import {z} from "zod";
 import AudioService from "../AudioService.js";
 
-const name = "voice_playback";
+const name = "audio_playback";
+const displayName = "Audio/playback";
 
 async function execute(
   {
@@ -31,5 +32,5 @@ const inputSchema = z.object({
 });
 
 export default {
-  name, description, inputSchema, execute,
+  name, displayName, description, inputSchema, execute,
 } satisfies TokenRingToolDefinition<typeof inputSchema>;

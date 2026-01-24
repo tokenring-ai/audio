@@ -6,6 +6,7 @@ import {z} from "zod";
 import AudioService from "../AudioService.js";
 
 const name = "voice_speak";
+const displayName = "Audio/speak";
 
 async function execute(
   {
@@ -45,5 +46,5 @@ const inputSchema = z.object({
 });
 
 export default {
-  name, description, inputSchema, execute,
+  name, displayName, description, inputSchema, execute,
 } satisfies TokenRingToolDefinition<typeof inputSchema>;
