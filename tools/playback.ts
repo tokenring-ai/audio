@@ -9,20 +9,13 @@ const displayName = "Audio/playback";
 async function execute(
   {
     filename,
-  }: z.infer<typeof inputSchema>,
+  }: z.output<typeof inputSchema>,
   agent: Agent,
-): Promise<{ filePath: string }> {
-
+) {
   const voiceService = agent.requireServiceByType(AudioService);
-
-  if (!filename) {
-    throw new Error(`[${name}] filename is required`);
-  }
-
   agent.infoMessage(`[${name}] Playing audio: ${filename}`);
   const result = await voiceService.requireAudioProvider(agent).playback(filename);
-
-  return {filePath: result};
+  return { type: 'json' as const, data: { filePath: result } };
 }
 
 const description = "Play audio file using the active voice provider";

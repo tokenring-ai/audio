@@ -12,12 +12,10 @@ async function execute(
     channels,
     format,
     timeout
-  }: z.infer<typeof inputSchema>,
+  }: z.output<typeof inputSchema>,
   agent: Agent,
-): Promise<{ filePath: string }> {
-
+) {
   const voiceService = agent.requireServiceByType(AudioService);
-
   agent.infoMessage(`[${name}] Starting recording...`);
 
   const abortController = new AbortController();
@@ -31,7 +29,7 @@ async function execute(
     format
   });
 
-  return {filePath: result.filePath};
+  return { type: 'json' as const, data: { filePath: result.filePath } };
 }
 
 const description = "Record audio using the active voice provider";

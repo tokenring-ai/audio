@@ -13,7 +13,7 @@ async function execute(
     text,
     //voice,
     speed,
-  }: z.infer<typeof inputSchema>,
+  }: z.output<typeof inputSchema>,
   agent: Agent,
 ): Promise<string> {
 
