@@ -121,17 +121,27 @@ Interactive commands for managing audio operations:
 
 ```bash
 # TTS model management
+/audio model tts                    # Show current TTS model and open selector
 /audio model tts get                # Show current TTS model
 /audio model tts set openai/tts-1   # Set TTS model
 /audio model tts select             # Interactive model selection
 /audio model tts reset              # Reset to initial configured model
 
 # STT model management
+/audio model stt                    # Show current STT model and open selector
 /audio model stt get                # Show current STT model
 /audio model stt set openai/whisper-1  # Set STT model
 /audio model stt select             # Interactive model selection
 /audio model stt reset              # Reset to initial configured model
 ```
+
+### Interactive Mode
+
+- Models are grouped by provider (OpenAI, Anthropic, etc.)
+- Status indicators show availability:
+  - Online - Ready for immediate use
+  - Cold - May have startup delay
+  - Offline - Currently unavailable
 
 ## Tools
 
@@ -154,6 +164,8 @@ Record audio using the active voice provider.
 }
 ```
 
+**Returns:** `{ type: 'json', data: { filePath: string } }`
+
 ### voice_transcribe
 
 Transcribe audio file to text.
@@ -169,9 +181,11 @@ Transcribe audio file to text.
 }
 ```
 
+**Returns:** `string` - The transcription text
+
 ### voice_speak
 
-Convert text to speech.
+Convert text to speech and play it.
 
 ```typescript
 {
@@ -184,19 +198,23 @@ Convert text to speech.
 }
 ```
 
-### voice_playback
+**Returns:** `string` - Confirmation message "Playback succeeded"
+
+### audio_playback
 
 Play audio file.
 
 ```typescript
 {
-  name: "voice_playback",
+  name: "audio_playback",
   description: "Play audio file using the active voice provider",
   inputSchema: z.object({
     filename: z.string().min(1).describe("Audio filename to play"),
   })
 }
 ```
+
+**Returns:** `{ type: 'json', data: { filePath: string } }`
 
 ## Configuration
 
@@ -244,8 +262,8 @@ const AudioServiceConfigSchema = z.object({
 const AudioAgentConfigSchema = z.object({
   provider: z.string().optional(),
   transcribe: AudioTranscriptionConfigSchema.optional(),
-  speech: AudioSpeechConfigSchema.optional(),
-});
+  speech: AudioSpeechConfigSchema.optional()
+}).prefault({});
 
 const AudioTranscriptionConfigSchema = z.object({
   model: z.string().default('whisper-1'),
@@ -267,11 +285,12 @@ const AudioSpeechConfigSchema = z.object({
 The `AudioState` class manages audio configuration persistence across agent sessions:
 
 ```typescript
-class AudioState implements AgentStateSlice {
+class AudioState implements AgentStateSlice<typeof serializationSchema> {
   name = "AudioState";
+  serializationSchema = serializationSchema;
   activeProvider: string | null;
-  transcribe: TranscriptionConfig;
-  speech: SpeechConfig;
+  transcribe: z.output<typeof AudioTranscriptionConfigSchema>;
+  speech: z.output<typeof AudioSpeechConfigSchema>;
 }
 ```
 
