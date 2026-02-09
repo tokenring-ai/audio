@@ -11,7 +11,7 @@ import {AudioAgentConfigSchema, AudioServiceConfigSchema} from "./schema.ts";
 import {AudioState} from "./state/audioState.ts";
 
 export default class AudioService implements TokenRingService {
-  name = "AudioService";
+  readonly name = "AudioService";
   description = "Service for Audio Operations";
 
   private providerRegistry = new KeyedRegistry<AudioProvider>();
