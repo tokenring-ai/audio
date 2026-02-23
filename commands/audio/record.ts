@@ -1,8 +1,9 @@
 import {Agent} from "@tokenring-ai/agent";
+import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
 import {parseArgs} from "node:util";
 import AudioService from "../../AudioService.js";
 
-export default async function record(remainder: string, agent: Agent): Promise<void> {
+export default async function record(remainder: string, agent: Agent): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
   
   const {values} = parseArgs({
@@ -21,5 +22,5 @@ export default async function record(remainder: string, agent: Agent): Promise<v
     format: values.format as string
   });
   
-  agent.infoMessage(`Recording saved: ${result.filePath}`);
+  return `Recording saved: ${result.filePath}`;
 }

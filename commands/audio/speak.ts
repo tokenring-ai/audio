@@ -1,10 +1,11 @@
 import {Agent} from "@tokenring-ai/agent";
+import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
 import fs from "node:fs";
 import {parseArgs} from "node:util";
 import path from "path";
 import AudioService from "../../AudioService.js";
 
-export default async function speak(remainder: string, agent: Agent): Promise<void> {
+export default async function speak(remainder: string, agent: Agent): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
   
   const {values, positionals} = parseArgs({
@@ -19,8 +20,7 @@ export default async function speak(remainder: string, agent: Agent): Promise<vo
 
   const query = positionals.join(" ");
   if (!query) {
-    agent.errorMessage("Usage: /audio speak <text> [flags]");
-    return;
+    throw new CommandFailedError("Usage: /audio speak <text> [flags]");
   }
 
   const result = await audioService.convertTextToSpeech(query, {
@@ -34,5 +34,5 @@ export default async function speak(remainder: string, agent: Agent): Promise<vo
 
   await audioService.requireAudioProvider(agent).playback(tmpFile);
   
-  agent.infoMessage(`Speech generated: ${tmpFile}`);
+  return `Speech generated: ${tmpFile}`;
 }

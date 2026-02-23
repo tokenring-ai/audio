@@ -3,7 +3,7 @@ import type {TreeLeaf} from "@tokenring-ai/agent/question";
 import {TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {AudioState} from "../../../../state/audioState.js";
 
-export default async function select(_remainder: string, agent: Agent): Promise<void> {
+export default async function select(_remainder: string, agent: Agent): Promise<string> {
   const transcriptionModelRegistry = agent.requireServiceByType(TranscriptionModelRegistry);
 
   const modelsByProvider = await agent.busyWhile(
@@ -70,8 +70,8 @@ export default async function select(_remainder: string, agent: Agent): Promise<
     agent.mutateState(AudioState, (state) => {
       state.transcribe.model = selectedModel;
     });
-    agent.infoMessage(`STT model set to ${selectedModel}`);
+    return `STT model set to ${selectedModel}`;
   } else {
-    agent.infoMessage("Model selection cancelled. No changes made.");
+    return "Model selection cancelled. No changes made.";
   }
 }

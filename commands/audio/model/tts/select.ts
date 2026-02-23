@@ -9,7 +9,7 @@ interface TreeNode {
   hasChildren?: boolean;
 }
 
-export default async function select(_remainder: string, agent: Agent): Promise<void> {
+export default async function select(_remainder: string, agent: Agent): Promise<string> {
   const speechModelRegistry = agent.requireServiceByType(SpeechModelRegistry);
 
   const modelsByProvider = await agent.busyWhile(
@@ -77,8 +77,8 @@ export default async function select(_remainder: string, agent: Agent): Promise<
     agent.mutateState(AudioState, (state) => {
       state.speech.model = selectedModel;
     });
-    agent.infoMessage(`TTS model set to ${selectedModel}`);
+    return `TTS model set to ${selectedModel}`;
   } else {
-    agent.infoMessage("Model selection cancelled. No changes made.");
+    return "Model selection cancelled. No changes made.";
   }
 }

@@ -1,16 +1,17 @@
 import {Agent} from "@tokenring-ai/agent";
+import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
 import {AudioState} from "../../../../state/audioState.js";
 
-export default async function set(remainder: string, agent: Agent): Promise<void> {
+export default async function set(remainder: string, agent: Agent): Promise<string> {
   const modelName = remainder?.trim();
   
   if (!modelName) {
-    agent.errorMessage("Model name required. Usage: /audio model tts set <model_name>");
-    return;
+    throw new CommandFailedError("Model name required. Usage: /audio model tts set <model_name>");
   }
 
   agent.mutateState(AudioState, (state) => {
     state.speech.model = modelName;
   });
-  agent.infoMessage(`TTS model set to ${modelName}`);
+  
+  return `TTS model set to ${modelName}`;
 }

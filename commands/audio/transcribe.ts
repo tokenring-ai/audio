@@ -1,8 +1,9 @@
 import {Agent} from "@tokenring-ai/agent";
+import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
 import {parseArgs} from "node:util";
 import AudioService from "../../AudioService.js";
 
-export default async function transcribe(remainder: string, agent: Agent): Promise<void> {
+export default async function transcribe(remainder: string, agent: Agent): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
   
   const {values, positionals} = parseArgs({
@@ -16,13 +17,12 @@ export default async function transcribe(remainder: string, agent: Agent): Promi
 
   const query = positionals.join(" ");
   if (!query) {
-    agent.errorMessage("Usage: /audio transcribe <filename> [flags]");
-    return;
+    throw new CommandFailedError("Usage: /audio transcribe <filename> [flags]");
   }
 
   const result = await audioService.convertAudioToText(query, {
     language: values.language as string
   }, agent);
   
-  agent.infoMessage(`Transcription: ${result.text}`);
+  return `Transcription: ${result.text}`;
 }
