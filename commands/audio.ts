@@ -79,6 +79,7 @@ const execute = createSubcommandRouter({
 });
 
 export default {
+  name: "audio",
   description,
   execute,
   help,
