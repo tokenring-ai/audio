@@ -4,7 +4,7 @@
 
 Voice recording, playback, and speech processing for the TokenRing AI ecosystem. This package provides audio operations through integration with the AI client services for transcription and speech generation. It supports type-safe configuration with Zod schemas and integrates with the TokenRing agent framework.
 
-## Features
+## Key Features
 
 - **Type-Safe Configuration**: Zod-based validation for all configuration options
 - **Audio Transcription**: Convert audio to text using transcription model registry
@@ -13,6 +13,7 @@ Voice recording, playback, and speech processing for the TokenRing AI ecosystem.
 - **Plugin Architecture**: Automatic registration with TokenRing applications
 - **Interactive Model Management**: Select TTS and STT models from available providers
 - **Command System**: Rich chat command interface for audio operations
+- **Tool Integration**: Agent tools for programmatic audio operations
 
 ## Installation
 
@@ -20,11 +21,20 @@ Voice recording, playback, and speech processing for the TokenRing AI ecosystem.
 bun install @tokenring-ai/audio
 ```
 
+## Dependencies
+
+- `@tokenring-ai/ai-client` (0.2.0) - AI client services for transcription and speech
+- `@tokenring-ai/app` (0.2.0) - Base application framework
+- `@tokenring-ai/chat` (0.2.0) - Chat service for tool registration
+- `@tokenring-ai/agent` (0.2.0) - Agent framework for commands and state
+- `@tokenring-ai/utility` (0.2.0) - Utility functions including KeyedRegistry
+- `zod` (^4.3.6) - Schema validation
+
 ## Core Components
 
 ### AudioService
 
-The main service class that manages audio operations and provider registry.
+The main service class that manages audio operations and provider registry. Implements the `TokenRingService` interface.
 
 ```typescript
 import AudioService from '@tokenring-ai/audio/AudioService';
@@ -48,77 +58,169 @@ const audioService = new AudioService({
 });
 ```
 
+#### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `name` | `string` | Service name: `"AudioService"` |
+| `description` | `string` | Service description: `"Service for Audio Operations"` |
+| `options` | `AudioServiceConfig` | Service configuration options |
+
 #### Methods
 
 | Method | Description |
 |--------|-------------|
-| `attach(agent: Agent)` | Initialize audio state for an agent with default configuration |
-| `registerProvider(name: string, provider: AudioProvider)` | Register an audio provider |
-| `getAvailableProviders(): string[]` | Get list of registered providers |
+| `registerProvider(name: string, provider: AudioProvider)` | Register an audio provider (from KeyedRegistry) |
+| `getAvailableProviders(): string[]` | Get list of registered provider names |
+| `attach(agent: Agent): void` | Initialize audio state for an agent with default configuration |
 | `requireAudioProvider(agent: Agent): AudioProvider` | Get the active audio provider for an agent |
-| `setActiveProvider(name: string, agent: Agent)` | Set the active audio provider for an agent |
-| `convertAudioToText(audioFile, { language }, agent)` | Transcribe audio to text |
-| `convertTextToSpeech(text, { voice, speed }, agent)` | Convert text to speech |
+| `setActiveProvider(name: string, agent: Agent): void` | Set the active audio provider for an agent |
+| `convertAudioToText(audioFile, { language }, agent): Promise<TranscriptionResult>` | Transcribe audio to text |
+| `convertTextToSpeech(text, { voice, speed }, agent): Promise<AudioResult>` | Convert text to speech |
+
+#### Error Handling
+
+- `requireAudioProvider()` throws `Error` if no audio provider is enabled
+- Methods may throw errors from underlying AI client operations
 
 ### AudioProvider
 
-Abstract interface for implementing audio providers.
+Abstract interface for implementing audio providers. Providers must implement both recording and playback functionality.
 
 ```typescript
-interface AudioProvider {
+export interface AudioProvider {
   record(abortSignal: AbortSignal, options: RecordingOptions): Promise<RecordingResult>;
   playback(filename: string): Promise<string>;
 }
+```
 
-interface RecordingOptions {
-  sampleRate?: number;
-  channels?: number;
-  format?: string;
-  timeout?: number;
+#### RecordingOptions
+
+```typescript
+export interface RecordingOptions {
+  sampleRate?: number;   // Sample rate for recording
+  channels?: number;     // Number of audio channels
+  format?: string;       // Audio format (e.g., 'wav', 'mp3')
+  timeout?: number;      // Recording timeout in milliseconds
 }
+```
 
-interface RecordingResult {
-  filePath: string;
+#### RecordingResult
+
+```typescript
+export interface RecordingResult {
+  filePath: string;      // Path to the recorded audio file
 }
+```
 
-interface AudioResult {
-  data: any;
+#### AudioResult
+
+```typescript
+export interface AudioResult {
+  data: any;             // Audio data (typically Uint8Array or Buffer)
 }
 ```
 
 ## Chat Commands
 
-### `/audio` Command
+The package provides the `/audio` command suite for interactive audio operations.
 
-Interactive commands for managing audio operations:
-
-```bash
-# Record audio from microphone
-/audio record [options]
-
-# Play audio file
-/audio play <file>
-
-# Convert text to speech
-/audio speak <text> [options]
-
-# Transcribe audio file
-/audio transcribe <file> [options]
-
-# Manage TTS/STT models
-/audio model {tts|stt} {default|get|set|reset|select}
-```
-
-### Command Details
+### Command Overview
 
 | Command | Description |
 |---------|-------------|
 | `/audio record [options]` | Record audio from microphone (Ctrl+C to stop) |
 | `/audio play <file>` | Play audio file through speakers |
-| `/audio speak <text> [options]` | Convert text to speech |
+| `/audio speak <text> [options]` | Convert text to speech and play |
 | `/audio transcribe <file> [options]` | Transcribe audio file to text |
 | `/audio model tts ...` | Manage TTS (text-to-speech) models |
 | `/audio model stt ...` | Manage STT (speech-to-text) models |
+
+### Recording Command
+
+```bash
+/audio record [--format <fmt>]
+```
+
+Records audio from the microphone. Press Ctrl+C to stop recording.
+
+**Options:**
+- `--format <fmt>` - Audio format for recording
+
+**Example:**
+```bash
+/audio record
+/audio record --format wav
+```
+
+**Output:** `Recording saved: <filepath>`
+
+### Play Command
+
+```bash
+/audio play <file>
+```
+
+Plays an audio file through the speakers.
+
+**Arguments:**
+- `<file>` - Path to the audio file to play
+
+**Example:**
+```bash
+/audio play output.mp3
+```
+
+**Output:** `Played: <filepath>`
+
+**Errors:** Throws `CommandFailedError` if no filename is provided.
+
+### Speak Command
+
+```bash
+/audio speak <text> [--voice <id>] [--speed <n>]
+```
+
+Converts text to speech and plays it through the speakers.
+
+**Arguments:**
+- `<text>` - Text to convert to speech
+
+**Options:**
+- `--voice <id>` - Voice ID to use for speech generation
+- `--speed <n>` - Speech speed (numeric value)
+
+**Example:**
+```bash
+/audio speak "Hello world"
+/audio speak "Welcome" --voice female --speed 1.2
+```
+
+**Output:** `Speech generated: <filepath>`
+
+### Transcribe Command
+
+```bash
+/audio transcribe <file> [--language <code>]
+```
+
+Transcribes an audio file to text.
+
+**Arguments:**
+- `<file>` - Path to the audio file to transcribe
+
+**Options:**
+- `--language <code>` - Language code for transcription (e.g., `en`, `en-US`)
+
+**Example:**
+```bash
+/audio transcribe recording.wav
+/audio transcribe audio.mp3 --language en-US
+```
+
+**Output:** `Transcription: <text>`
+
+**Errors:** Throws `CommandFailedError` if no filename is provided.
 
 ### Model Management Commands
 
@@ -132,6 +234,14 @@ Interactive commands for managing audio operations:
 | `/audio model tts select` | Interactive model selection |
 | `/audio model tts reset` | Reset to initial configured model |
 
+**Examples:**
+```bash
+/audio model tts get
+/audio model tts set openai/tts-1
+/audio model tts select
+/audio model tts reset
+```
+
 #### STT Model Management
 
 | Command | Description |
@@ -142,13 +252,25 @@ Interactive commands for managing audio operations:
 | `/audio model stt select` | Interactive model selection |
 | `/audio model stt reset` | Reset to initial configured model |
 
-### Interactive Mode
+**Examples:**
+```bash
+/audio model stt get
+/audio model stt set openai/whisper-1
+/audio model stt select
+/audio model stt reset
+```
 
-- Models are grouped by provider (OpenAI, Anthropic, etc.)
-- Status indicators show availability:
-  - ✅ Online - Ready for immediate use
-  - 🧊 Cold - May have startup delay
-  - 🔴 Offline - Currently unavailable
+#### Interactive Model Selection
+
+Both TTS and STT interactive selectors (`/audio model tts select` and `/audio model stt select`) provide:
+
+- Models grouped by provider (OpenAI, Anthropic, etc.)
+- Status indicators:
+  - ✅ **Online** - Ready for immediate use
+  - 🧊 **Cold** - May have startup delay
+  - 🔴 **Offline** - Currently unavailable
+- Tree-based selection interface
+- Provider-level summary showing online/total counts
 
 ## Tools
 
@@ -174,6 +296,15 @@ Record audio using the active voice provider.
 
 **Returns:** `{ type: 'json', data: { filePath: string } }`
 
+**Example:**
+```typescript
+const result = await agent.callTool('voice_record', {
+  format: 'wav',
+  timeout: 30000
+});
+// result = { type: 'json', data: { filePath: '/tmp/recording-123456.wav' } }
+```
+
 ### voice_transcribe
 
 Transcribe audio file to text.
@@ -191,6 +322,15 @@ Transcribe audio file to text.
 ```
 
 **Returns:** `string` - The transcription text
+
+**Example:**
+```typescript
+const transcription = await agent.callTool('voice_transcribe', {
+  audioFile: '/path/to/recording.wav',
+  language: 'en'
+});
+// transcription = "Hello, this is a test."
+```
 
 ### voice_speak
 
@@ -210,6 +350,17 @@ Convert text to speech and play it.
 
 **Returns:** `string` - "Playback succeeded"
 
+**Example:**
+```typescript
+const result = await agent.callTool('voice_speak', {
+  text: "Hello, world!",
+  speed: 1.2
+});
+// result = "Playback succeeded"
+```
+
+**Errors:** Throws `Error` if text is empty or not provided.
+
 ### audio_playback
 
 Play audio file.
@@ -226,6 +377,14 @@ Play audio file.
 ```
 
 **Returns:** `{ type: 'json', data: { filePath: string } }`
+
+**Example:**
+```typescript
+const result = await agent.callTool('audio_playback', {
+  filename: '/path/to/audio.mp3'
+});
+// result = { type: 'json', data: { filePath: '/path/to/audio.mp3' } }
+```
 
 ## Configuration
 
@@ -261,43 +420,51 @@ const app = new TokenRingApp({
 });
 ```
 
-### Configuration Schema
+### Configuration Schemas
+
+#### Service Configuration
 
 ```typescript
-// Plugin-level configuration
-const packageConfigSchema = z.object({
-  audio: AudioServiceConfigSchema.optional(),
-})
-
-// Service configuration
 const AudioServiceConfigSchema = z.object({
   tmpDirectory: z.string().default('/tmp'),
   providers: z.record(z.string(), z.any()),
   agentDefaults: AudioAgentDefaultsSchema,
 });
+```
 
-// Agent defaults configuration
+#### Agent Defaults Configuration
+
+```typescript
 const AudioAgentDefaultsSchema = z.object({
   provider: z.string(),
   transcribe: AudioTranscriptionConfigSchema.prefault({}),
   speech: AudioSpeechConfigSchema.prefault({}),
 });
+```
 
-// Transcription configuration
+#### Transcription Configuration
+
+```typescript
 const AudioTranscriptionConfigSchema = z.object({
   model: z.string().default('whisper-1'),
   prompt: z.string().default('Convert the audio to english'),
   language: z.string().default('en'),
 });
+```
 
-// Speech configuration
+#### Speech Configuration
+
+```typescript
 const AudioSpeechConfigSchema = z.object({
   model: z.string().default('OpenAI:tts-1'),
   voice: z.string().default('alloy'),
   speed: z.number().default(1.0),
 });
+```
 
-// Agent configuration slice
+#### Agent Configuration Slice
+
+```typescript
 const AudioAgentConfigSchema = z.object({
   provider: z.string().optional(),
   transcribe: AudioTranscriptionConfigSchema.optional(),
@@ -305,56 +472,105 @@ const AudioAgentConfigSchema = z.object({
 }).prefault({});
 ```
 
+### Configuration Options
+
+#### Service-Level Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `tmpDirectory` | `string` | `/tmp` | Directory for temporary audio files |
+| `providers` | `Record<string, any>` | `{}` | Audio provider configurations |
+| `agentDefaults` | `AudioAgentDefaultsSchema` | required | Default configuration for agents |
+
+#### Agent Defaults
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `provider` | `string` | required | Default audio provider name |
+| `transcribe` | `AudioTranscriptionConfigSchema` | `{}` | Default transcription settings |
+| `speech` | `AudioSpeechConfigSchema` | `{}` | Default speech settings |
+
+#### Transcription Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `model` | `string` | `whisper-1` | Transcription model identifier |
+| `prompt` | `string` | `Convert the audio to english` | Prompt for transcription |
+| `language` | `string` | `en` | Language code for transcription |
+
+#### Speech Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `model` | `string` | `OpenAI:tts-1` | Speech generation model |
+| `voice` | `string` | `alloy` | Voice identifier |
+| `speed` | `number` | `1.0` | Speech speed multiplier |
+
 ## State Management
 
 ### AudioState
 
-The `AudioState` class manages audio configuration persistence across agent sessions:
+The `AudioState` class manages audio configuration persistence across agent sessions. Implements `AgentStateSlice` interface.
 
 ```typescript
-class AudioState implements AgentStateSlice<typeof serializationSchema> {
+export class AudioState implements AgentStateSlice<typeof serializationSchema> {
   readonly name = "AudioState";
   serializationSchema = serializationSchema;
   
   activeProvider: string | null;
   transcribe: z.output<typeof AudioTranscriptionConfigSchema>;
   speech: z.output<typeof AudioSpeechConfigSchema>;
+  initialConfig: z.output<typeof AudioServiceConfigSchema>["agentDefaults"];
   
-  constructor(initialConfig: AudioAgentDefaultsSchema);
+  constructor(initialConfig: z.output<typeof AudioServiceConfigSchema>["agentDefaults"]);
   transferStateFromParent(parent: Agent): void;
-  serialize(): SerializationSchema;
-  deserialize(data: SerializationSchema): void;
+  serialize(): z.output<typeof serializationSchema>;
+  deserialize(data: z.output<typeof serializationSchema>): void;
   show(): string[];
 }
 ```
 
-**State Properties:**
+#### State Properties
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `activeProvider` | `string \| null` | Currently active audio provider |
-| `transcribe` | `AudioTranscriptionConfigSchema` | Transcription configuration |
-| `speech` | `AudioSpeechConfigSchema` | Speech configuration |
+| `transcribe` | `AudioTranscriptionConfigSchema` | Current transcription configuration |
+| `speech` | `AudioSpeechConfigSchema` | Current speech configuration |
+| `initialConfig` | `AudioAgentDefaultsSchema` | Initial configuration (for reset operations) |
 
-**State Methods:**
+#### State Methods
 
 | Method | Description |
 |--------|-------------|
-| `transferStateFromParent(parent: Agent)` | Inherit state from parent agent |
-| `serialize()` | Convert state to JSON |
-| `deserialize(data)` | Restore state from JSON |
-| `show()` | Generate displayable state summary |
+| `transferStateFromParent(parent: Agent): void` | Inherit state from parent agent |
+| `serialize(): SerializationSchema` | Convert state to JSON for persistence |
+| `deserialize(data: SerializationSchema): void` | Restore state from JSON |
+| `show(): string[]` | Generate displayable state summary |
 
-**State Display Format:**
+#### State Serialization Schema
+
+```typescript
+const serializationSchema = z.object({
+  activeProvider: z.string().nullable(),
+  transcribe: AudioTranscriptionConfigSchema,
+  speech: AudioSpeechConfigSchema
+});
+```
+
+#### State Display Format
 
 The `show()` method returns an array of strings for UI display:
-- `Active Provider: <provider_name>`
-- `Transcription Model: <model_name>`
-- `Transcription Prompt: <prompt>`
-- `Transcription Language: <language>`
-- `Speech Model: <model_name>`
-- `Speech Voice: <voice>`
-- `Speech Speed: <speed>`
+
+```
+Active Provider: <provider_name>
+Transcription Model: <model_name>
+Transcription Prompt: <prompt>
+Transcription Language: <language>
+Speech Model: <model_name>
+Speech Voice: <voice>
+Speech Speed: <speed>
+```
 
 ## Integration
 
@@ -366,6 +582,11 @@ import audioPlugin from '@tokenring-ai/audio';
 app.registerPlugin(audioPlugin);
 ```
 
+The plugin automatically:
+1. Registers the `AudioService` with the application
+2. Registers all audio tools with the `ChatService`
+3. Registers all agent commands with the `AgentCommandService`
+
 ### Agent Integration
 
 ```typescript
@@ -376,15 +597,20 @@ const audioService = agent.requireServiceByType(AudioService);
 const result = await audioService.convertAudioToText(audioFile, {
   language: 'en',
 }, agent);
+// result = { text: "Transcribed text" }
 
 // Generate speech
 const speech = await audioService.convertTextToSpeech('Hello world', {
   voice: 'alloy',
   speed: 1.2,
 }, agent);
+// speech = { data: Uint8Array [...] }
 
 // Set active provider
 audioService.setActiveProvider('linux', agent);
+
+// Get active provider
+const provider = audioService.requireAudioProvider(agent);
 ```
 
 ### Provider Integration
@@ -396,6 +622,8 @@ const audioService = agent.requireServiceByType(AudioService);
 audioService.registerProvider('custom', {
   async record(signal, options) {
     // Custom recording implementation
+    // signal: AbortSignal for cancellation
+    // options: RecordingOptions
     return { filePath: '/path/to/recording.wav' };
   },
   async playback(filename) {
@@ -408,14 +636,78 @@ audioService.registerProvider('custom', {
 audioService.setActiveProvider('custom', agent);
 ```
 
+### Tool Registration
+
+Tools are automatically registered when the plugin is installed:
+
+```typescript
+// Tools available after plugin installation:
+// - voice_record
+// - voice_transcribe
+// - voice_speak
+// - audio_playback
+```
+
+### Command Registration
+
+Commands are automatically registered when the plugin is installed:
+
+```typescript
+// Commands available after plugin installation:
+// - /audio record
+// - /audio play
+// - /audio speak
+// - /audio transcribe
+// - /audio model tts {get|set|select|reset}
+// - /audio model stt {get|set|select|reset}
+```
+
+## Service Registration
+
+The `AudioService` implements the `TokenRingService` interface:
+
+```typescript
+interface TokenRingService {
+  readonly name: string;
+  readonly description: string;
+  attach(agent: Agent): void;
+}
+```
+
+### Service Attachment
+
+When an agent is created, the `AudioService.attach()` method:
+
+1. Merges service defaults with agent-specific configuration
+2. Initializes the `AudioState` for the agent
+3. Sets up state persistence and restoration
+
+```typescript
+attach(agent: Agent): void {
+  const agentConfig = deepMerge(
+    this.options.agentDefaults,
+    agent.getAgentConfigSlice('audio', AudioAgentConfigSchema)
+  );
+  agent.initializeState(AudioState, agentConfig);
+}
+```
+
 ## Development
 
 ### Testing
 
 ```bash
+# Run tests
 bun run test
+
+# Run tests in watch mode
 bun run test:watch
+
+# Run tests with coverage
 bun run test:coverage
+
+# Type check
+bun run build
 ```
 
 ### Package Structure
@@ -435,31 +727,72 @@ pkg/audio/
 │   ├── transcribe.ts        # Audio transcription tool
 │   ├── speak.ts             # Text-to-speech tool
 │   └── playback.ts          # Audio playback tool
-├── chatCommands.ts          # Chat command registry
+├── commands.ts              # Command registry
 ├── commands/
-│   └── audio.ts             # /audio command implementation
 │   └── audio/
 │       ├── record.ts        # /audio record command
 │       ├── play.ts          # /audio play command
 │       ├── speak.ts         # /audio speak command
 │       ├── transcribe.ts    # /audio transcribe command
-│       └── model.ts         # /audio model command
 │       └── model/
-│           ├── tts.ts       # TTS model management router
-│           └── stt.ts       # STT model management router
-│           └── tts/         # TTS: default, get, set, reset, select
-│           └── stt/         # STT: default, get, set, reset, select
+│           ├── tts/
+│           │   ├── get.ts   # TTS model get command
+│           │   ├── set.ts   # TTS model set command
+│           │   ├── select.ts # TTS model select command
+│           │   └── reset.ts # TTS model reset command
+│           └── stt/
+│               ├── get.ts   # STT model get command
+│               ├── set.ts   # STT model set command
+│               ├── select.ts # STT model select command
+│               └── reset.ts # STT model reset command
 ├── package.json             # Package manifest
+├── vitest.config.ts         # Vitest configuration
 └── README.md                # This file
+```
+
+### Exports
+
+```typescript
+// Main exports from index.ts
+export {AudioServiceConfigSchema, AudioAgentConfigSchema} from "./schema.ts";
+export {default as AudioService} from "./AudioService.ts";
 ```
 
 ### Contribution Guidelines
 
 - Follow established coding patterns
-- Add unit tests for new functionality
+- Add unit tests for new functionality using vitest
 - Update documentation for new features
 - Ensure all changes work with TokenRing agent framework
 - Test with both headless and interactive modes
+- Use TypeScript with strict type checking
+- Use bun as the runtime for examples and tests
+
+## Best Practices
+
+### Provider Selection
+
+- Register providers that match your deployment environment
+- Use the `linux` provider for Linux-based deployments
+- Implement custom providers for specialized hardware or services
+
+### Model Management
+
+- Set appropriate default models in configuration
+- Use interactive selection for runtime flexibility
+- Monitor model availability status when selecting models
+
+### Error Handling
+
+- Always check if a provider is registered before operations
+- Handle `CommandFailedError` for command operations
+- Implement timeout for recording operations
+
+### State Persistence
+
+- Audio state is automatically persisted across sessions
+- Use `show()` method to display current state
+- Reset models to defaults when needed
 
 ## License
 

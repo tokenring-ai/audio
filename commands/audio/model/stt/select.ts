@@ -1,77 +1,55 @@
 import {Agent} from "@tokenring-ai/agent";
 import type {TreeLeaf} from "@tokenring-ai/agent/question";
 import {TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
+import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {AudioState} from "../../../../state/audioState.js";
 
-export default async function select(_remainder: string, agent: Agent): Promise<string> {
-  const transcriptionModelRegistry = agent.requireServiceByType(TranscriptionModelRegistry);
-
+async function execute(_remainder: string, agent: Agent): Promise<string> {
   const modelsByProvider = await agent.busyWhile(
     "Checking online status of models...",
-    transcriptionModelRegistry.getModelsByProvider(),
+    agent.requireServiceByType(TranscriptionModelRegistry).getModelsByProvider(),
   );
 
-  const buildModelTree = (): TreeLeaf[] => {
-    const roots: TreeLeaf[] = [];
-
-    const sortedProviders = Object.entries(modelsByProvider).sort(([a], [b]) =>
-      a.localeCompare(b),
-    );
-
-    for (const [provider, providerModels] of sortedProviders) {
-      const sortedModels = Object.entries(providerModels).sort(
-        ([, a], [, b]) => {
-          if (a.status === b.status) {
-            return a.modelSpec.modelId.localeCompare(b.modelSpec.modelId);
-          } else {
-            return a.status.localeCompare(b.status);
-          }
-        },
+  const tree: TreeLeaf[] = Object.entries(modelsByProvider)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([provider, providerModels]) => {
+      const sorted = Object.entries(providerModels).sort(([, a], [, b]) =>
+        a.status === b.status ? a.modelSpec.modelId.localeCompare(b.modelSpec.modelId) : a.status.localeCompare(b.status)
       );
-
-      const children = sortedModels.map(([modelName, model]) => ({
-        value: modelName,
-        name:
-          model.status === "online"
-            ? model.modelSpec.modelId
-            : model.status === "cold"
-              ? `${model.modelSpec.modelId} (cold)`
-              : `${model.modelSpec.modelId} (offline)`,
-      }));
-
-      const onlineCount = Object.values(providerModels).filter(
-        (m) => m.status === "online",
-      ).length;
-      const totalCount = Object.keys(providerModels).length;
-
-      roots.push({
-        name: `${provider} (${onlineCount}/${totalCount} online)`,
-        children,
-      });
-    }
-
-    return roots;
-  };
+      const onlineCount = Object.values(providerModels).filter(m => m.status === "online").length;
+      return {
+        name: `${provider} (${onlineCount}/${Object.keys(providerModels).length} online)`,
+        children: sorted.map(([modelName, model]) => ({
+          value: modelName,
+          name: model.status === "online" ? model.modelSpec.modelId : `${model.modelSpec.modelId} (${model.status})`,
+        })),
+      };
+    });
 
   const selection = await agent.askQuestion({
     message: "Choose a Speech to Text model:",
-    question: {
-      type: 'treeSelect',
-      label: "Model Selection",
-      key: "result",
-      minimumSelections: 1,
-      maximumSelections: 1,
-      tree: buildModelTree(),
-    }
+    question: { type: 'treeSelect', label: "Model Selection", key: "result", minimumSelections: 1, maximumSelections: 1, tree },
   });
 
   if (selection !== null && selection.length > 0) {
-    const selectedModel = selection[0];
-    agent.mutateState(AudioState, (state) => {
-      state.transcribe.model = selectedModel;
-    });
-    return `STT model set to ${selectedModel}`;
-  } else {
-    return "Model selection cancelled. No changes made.";
+    agent.mutateState(AudioState, (state) => { state.transcribe.model = selection[0]; });
+    return `STT model set to ${selection[0]}`;
   }
+  return "Model selection cancelled. No changes made.";
 }
+
+const help = `# /audio model stt select
+
+Open an interactive tree-based selector to choose the STT model. Models are grouped by provider with availability status.
+
+## Example
+
+/audio model stt select
+
+## Notes
+
+- ✅ Online - Ready for immediate use
+- 🧊 Cold - May have startup delay
+- 🔴 Offline - Currently unavailable`;
+
+export default { name: "audio model stt select", description: "/audio model stt select - Interactive STT model selection", help, execute } satisfies TokenRingAgentCommand;
