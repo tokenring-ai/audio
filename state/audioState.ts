@@ -1,5 +1,5 @@
 import {Agent} from "@tokenring-ai/agent";
-import type {AgentStateSlice} from "@tokenring-ai/agent/types";
+import {AgentStateSlice} from "@tokenring-ai/agent/types";
 import {z} from "zod";
 import {AudioServiceConfigSchema, AudioSpeechConfigSchema, AudioTranscriptionConfigSchema} from "../schema.ts";
 
@@ -9,14 +9,13 @@ const serializationSchema = z.object({
   speech: AudioSpeechConfigSchema
 });
 
-export class AudioState implements AgentStateSlice<typeof serializationSchema> {
-  readonly name = "AudioState";
-  serializationSchema = serializationSchema;
+export class AudioState extends AgentStateSlice<typeof serializationSchema> {
   activeProvider: string | null;
   transcribe: z.output<typeof AudioTranscriptionConfigSchema>;
   speech: z.output<typeof AudioSpeechConfigSchema>;
 
   constructor(readonly initialConfig: z.output<typeof AudioServiceConfigSchema>["agentDefaults"]) {
+    super("AudioState", serializationSchema);
     this.activeProvider = initialConfig.provider ?? null;
     this.transcribe = initialConfig.transcribe;
     this.speech = initialConfig.speech;
