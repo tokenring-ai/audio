@@ -11,7 +11,7 @@ interface TreeNode {
 }
 
 async function execute(_remainder: string, agent: Agent): Promise<string> {
-  const modelsByProvider = await agent.busyWhile(
+  const modelsByProvider = await agent.busyWithActivity(
     "Checking online status of models...",
     agent.requireServiceByType(SpeechModelRegistry).getModelsByProvider(),
   );

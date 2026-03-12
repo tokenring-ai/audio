@@ -5,7 +5,7 @@ import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {AudioState} from "../../../../state/audioState.js";
 
 async function execute(_remainder: string, agent: Agent): Promise<string> {
-  const modelsByProvider = await agent.busyWhile(
+  const modelsByProvider = await agent.busyWithActivity(
     "Checking online status of models...",
     agent.requireServiceByType(TranscriptionModelRegistry).getModelsByProvider(),
   );
