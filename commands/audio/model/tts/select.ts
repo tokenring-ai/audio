@@ -1,13 +1,7 @@
+import type {TreeLeaf} from "@tokenring-ai/agent/question";
 import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {SpeechModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {AudioState} from "../../../../state/audioState.js";
-
-interface TreeNode {
-  name: string;
-  value?: string;
-  children?: TreeNode[];
-  hasChildren?: boolean;
-}
 
 const inputSchema = {
   args: {},
@@ -20,7 +14,7 @@ async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Prom
     agent.requireServiceByType(SpeechModelRegistry).getModelsByProvider(),
   );
 
-  const tree: TreeNode[] = Object.entries(modelsByProvider)
+  const tree: TreeLeaf[] = Object.entries(modelsByProvider)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([provider, providerModels]) => {
       const sorted = Object.entries(providerModels).sort(([, a], [, b]) =>
@@ -29,7 +23,6 @@ async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Prom
       const onlineCount = Object.values(providerModels).filter(m => m.status === "online").length;
       return {
         name: `${provider} (${onlineCount}/${Object.keys(providerModels).length} online)`,
-        hasChildren: true,
         children: sorted.map(([modelName, model]) => ({
           value: modelName,
           name: model.status === "online" ? model.modelSpec.modelId : `${model.modelSpec.modelId} (${model.status})`,
