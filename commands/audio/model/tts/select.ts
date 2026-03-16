@@ -1,5 +1,4 @@
-import {Agent} from "@tokenring-ai/agent";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {SpeechModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {AudioState} from "../../../../state/audioState.js";
 
@@ -10,7 +9,12 @@ interface TreeNode {
   hasChildren?: boolean;
 }
 
-async function execute(_remainder: string, agent: Agent): Promise<string> {
+const inputSchema = {
+  args: {},
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
+
+async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const modelsByProvider = await agent.busyWithActivity(
     "Checking online status of models...",
     agent.requireServiceByType(SpeechModelRegistry).getModelsByProvider(),
@@ -59,4 +63,4 @@ Open an interactive tree-based selector to choose the TTS model. Models are grou
 - 🧊 Cold - May have startup delay
 - 🔴 Offline - Currently unavailable`;
 
-export default {name: "audio model tts select", description: "Interactive TTS model selection", help, execute} satisfies TokenRingAgentCommand;
+export default {name: "audio model tts select", description: "Interactive TTS model selection", inputSchema, help, execute} satisfies TokenRingAgentCommand<typeof inputSchema>;

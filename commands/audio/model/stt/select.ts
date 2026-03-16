@@ -1,10 +1,14 @@
-import {Agent} from "@tokenring-ai/agent";
 import type {TreeLeaf} from "@tokenring-ai/agent/question";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {AudioState} from "../../../../state/audioState.js";
 
-async function execute(_remainder: string, agent: Agent): Promise<string> {
+const inputSchema = {
+  args: {},
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
+
+async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const modelsByProvider = await agent.busyWithActivity(
     "Checking online status of models...",
     agent.requireServiceByType(TranscriptionModelRegistry).getModelsByProvider(),
@@ -52,4 +56,4 @@ Open an interactive tree-based selector to choose the STT model. Models are grou
 - 🧊 Cold - May have startup delay
 - 🔴 Offline - Currently unavailable`;
 
-export default {name: "audio model stt select", description: "Interactive STT model selection", help, execute} satisfies TokenRingAgentCommand;
+export default {name: "audio model stt select", description: "Interactive STT model selection", inputSchema, help, execute} satisfies TokenRingAgentCommand<typeof inputSchema>;

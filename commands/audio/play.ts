@@ -1,10 +1,18 @@
-import {Agent} from "@tokenring-ai/agent";
 import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import AudioService from "../../AudioService.js";
 
-async function execute(remainder: string, agent: Agent): Promise<string> {
-  const query = remainder.trim();
+const inputSchema = {
+  args: {},
+  prompt: {
+    description: "The filename to play",
+    required: true,
+  },
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
+
+async function execute({prompt, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+  const query = prompt.trim();
   if (!query) throw new CommandFailedError("Usage: /audio play <filename> [flags]");
   const result = await agent.requireServiceByType(AudioService).requireAudioProvider(agent).playback(query);
   return `Played: ${result}`;
@@ -22,4 +30,4 @@ Play an audio file through the speakers.
 
 /audio play output.mp3`;
 
-export default {name: "audio play", description: "Play audio file", help, execute} satisfies TokenRingAgentCommand;
+export default {name: "audio play", description: "Play audio file", inputSchema, help, execute} satisfies TokenRingAgentCommand<typeof inputSchema>;

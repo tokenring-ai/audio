@@ -1,19 +1,21 @@
-import {Agent} from "@tokenring-ai/agent";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
-import {parseArgs} from "node:util";
+import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import AudioService from "../../AudioService.js";
 
-async function execute(remainder: string, agent: Agent): Promise<string> {
+const inputSchema = {
+  args: {
+    "--format": {
+      type: "string",
+      description: "Audio format (e.g., wav, mp3)",
+    },
+  },
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
+
+async function execute({args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
-  const {values} = parseArgs({
-    args: remainder.trim().split(/\s+/).filter(Boolean),
-    options: { format: {type: 'string'} },
-    allowPositionals: true,
-    strict: false
-  });
   const abortController = new AbortController();
   agent.infoMessage("Recording... Press Ctrl+C to stop");
-  const result = await audioService.requireAudioProvider(agent).record(abortController.signal, { format: values.format as string });
+  const result = await audioService.requireAudioProvider(agent).record(abortController.signal, { format: args["--format"] as string });
   return `Recording saved: ${result.filePath}`;
 }
 
@@ -30,4 +32,4 @@ Record audio from the microphone. Press Ctrl+C to stop recording.
 /audio record
 /audio record --format wav`;
 
-export default {name: "audio record", description: "Record audio from microphone", help, execute} satisfies TokenRingAgentCommand;
+export default {name: "audio record", description: "Record audio from microphone", inputSchema, help, execute} satisfies TokenRingAgentCommand<typeof inputSchema>;

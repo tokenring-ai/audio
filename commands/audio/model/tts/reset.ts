@@ -1,9 +1,13 @@
-import {Agent} from "@tokenring-ai/agent";
 import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
-import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {AudioState} from "../../../../state/audioState.js";
 
-async function execute(_remainder: string, agent: Agent): Promise<string> {
+const inputSchema = {
+  args: {},
+  allowAttachments: false,
+} as const satisfies AgentCommandInputSchema;
+
+async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const initialModel = agent.getState(AudioState).initialConfig.speech.model;
   if (!initialModel) throw new CommandFailedError("No initial model configured");
   agent.mutateState(AudioState, (state) => { state.speech.model = initialModel; });
@@ -18,4 +22,4 @@ Reset the TTS model to the initial configured value.
 
 /audio model tts reset`;
 
-export default {name: "audio model tts reset", description: "Reset TTS model", help, execute} satisfies TokenRingAgentCommand;
+export default {name: "audio model tts reset", description: "Reset TTS model", inputSchema, help, execute} satisfies TokenRingAgentCommand<typeof inputSchema>;
