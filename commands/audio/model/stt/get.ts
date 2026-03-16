@@ -4,7 +4,7 @@ import {AudioState} from "../../../../state/audioState.js";
 
 export default {
   name: "audio model stt get",
-  description: "/audio model stt get - Show current STT model",
+  description: "Show current STT model",
   help: `# /audio model stt get
 
 Show the currently active STT (speech-to-text) model.

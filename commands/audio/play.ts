@@ -22,4 +22,4 @@ Play an audio file through the speakers.
 
 /audio play output.mp3`;
 
-export default { name: "audio play", description: "/audio play - Play audio file", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "audio play", description: "Play audio file", help, execute} satisfies TokenRingAgentCommand;

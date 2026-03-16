@@ -30,4 +30,4 @@ Record audio from the microphone. Press Ctrl+C to stop recording.
 /audio record
 /audio record --format wav`;
 
-export default { name: "audio record", description: "/audio record - Record audio from microphone", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "audio record", description: "Record audio from microphone", help, execute} satisfies TokenRingAgentCommand;

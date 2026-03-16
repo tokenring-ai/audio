@@ -36,4 +36,4 @@ Convert text to speech and play it through the speakers.
 /audio speak "Hello world"
 /audio speak "Welcome" --voice female --speed 1.2`;
 
-export default { name: "audio speak", description: "/audio speak - Convert text to speech", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "audio speak", description: "Convert text to speech", help, execute} satisfies TokenRingAgentCommand;

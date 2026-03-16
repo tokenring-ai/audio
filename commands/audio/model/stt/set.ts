@@ -18,4 +18,4 @@ Set the active STT (speech-to-text) model.
 
 /audio model stt set openai/whisper-1`;
 
-export default { name: "audio model stt set", description: "/audio model stt set - Set STT model", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "audio model stt set", description: "Set STT model", help, execute} satisfies TokenRingAgentCommand;

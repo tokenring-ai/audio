@@ -4,7 +4,7 @@ import {AudioState} from "../../../../state/audioState.js";
 
 export default {
   name: "audio model tts get",
-  description: "/audio model tts get - Show current TTS model",
+  description: "Show current TTS model",
   help: `# /audio model tts get
 
 Show the currently active TTS (text-to-speech) model.

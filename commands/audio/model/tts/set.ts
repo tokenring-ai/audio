@@ -18,4 +18,4 @@ Set the active TTS (text-to-speech) model.
 
 /audio model tts set openai/tts-1`;
 
-export default { name: "audio model tts set", description: "/audio model tts set - Set TTS model", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "audio model tts set", description: "Set TTS model", help, execute} satisfies TokenRingAgentCommand;

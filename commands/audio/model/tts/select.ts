@@ -1,6 +1,6 @@
 import {Agent} from "@tokenring-ai/agent";
-import {SpeechModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {SpeechModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {AudioState} from "../../../../state/audioState.js";
 
 interface TreeNode {
@@ -59,4 +59,4 @@ Open an interactive tree-based selector to choose the TTS model. Models are grou
 - 🧊 Cold - May have startup delay
 - 🔴 Offline - Currently unavailable`;
 
-export default { name: "audio model tts select", description: "/audio model tts select - Interactive TTS model selection", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "audio model tts select", description: "Interactive TTS model selection", help, execute} satisfies TokenRingAgentCommand;

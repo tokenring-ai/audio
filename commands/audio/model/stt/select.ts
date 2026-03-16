@@ -1,7 +1,7 @@
 import {Agent} from "@tokenring-ai/agent";
 import type {TreeLeaf} from "@tokenring-ai/agent/question";
-import {TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import {TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {AudioState} from "../../../../state/audioState.js";
 
 async function execute(_remainder: string, agent: Agent): Promise<string> {
@@ -52,4 +52,4 @@ Open an interactive tree-based selector to choose the STT model. Models are grou
 - 🧊 Cold - May have startup delay
 - 🔴 Offline - Currently unavailable`;
 
-export default { name: "audio model stt select", description: "/audio model stt select - Interactive STT model selection", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "audio model stt select", description: "Interactive STT model selection", help, execute} satisfies TokenRingAgentCommand;

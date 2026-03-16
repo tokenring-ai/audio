@@ -18,4 +18,4 @@ Reset the TTS model to the initial configured value.
 
 /audio model tts reset`;
 
-export default { name: "audio model tts reset", description: "/audio model tts reset - Reset TTS model", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "audio model tts reset", description: "Reset TTS model", help, execute} satisfies TokenRingAgentCommand;

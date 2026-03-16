@@ -31,4 +31,4 @@ Transcribe an audio file to text.
 /audio transcribe recording.wav
 /audio transcribe audio.mp3 --language en-US`;
 
-export default { name: "audio transcribe", description: "/audio transcribe - Transcribe audio to text", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "audio transcribe", description: "Transcribe audio to text", help, execute} satisfies TokenRingAgentCommand;

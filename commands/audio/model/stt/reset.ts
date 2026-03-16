@@ -18,4 +18,4 @@ Reset the STT model to the initial configured value.
 
 /audio model stt reset`;
 
-export default { name: "audio model stt reset", description: "/audio model stt reset - Reset STT model", help, execute } satisfies TokenRingAgentCommand;
+export default {name: "audio model stt reset", description: "Reset STT model", help, execute} satisfies TokenRingAgentCommand;
