@@ -15,31 +15,28 @@ const inputSchema = {
       description: "Speech speed multiplier",
     },
   },
-  prompt: {
-    description: "The text to convert to speech",
-    required: true,
-  },
+  positionals: [
+    {
+      name: "text",
+      description: "The text to convert to speech",
+      required: true,
+      greedy: true
+    },
+  ],
   allowAttachments: false,
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({prompt, args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({positionals, args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
-  const query = prompt.trim();
-  if (!query) throw new CommandFailedError("Usage: /audio speak <text> [flags]");
-  const result = await audioService.convertTextToSpeech(query, { voice: args["--voice"] as string, speed: args["--speed"] ? Number(args["--speed"]) : undefined }, agent);
+  const text = positionals.text;
+  const result = await audioService.convertTextToSpeech(text, { voice: args["--voice"] as string, speed: args["--speed"] ? Number(args["--speed"]) : undefined }, agent);
   const tmpFile = path.join(audioService.options.tmpDirectory, `speech-${Date.now()}.mp3`);
   fs.writeFileSync(tmpFile, result.data);
   await audioService.requireAudioProvider(agent).playback(tmpFile);
   return `Speech generated: ${tmpFile}`;
 }
 
-const help = `# /audio speak <text> [options]
-
-Convert text to speech and play it through the speakers.
-
-## Usage
-
-/audio speak <text> [--voice <id>] [--speed <n>]
+const help = `Convert text to speech and play it through the speakers.
 
 ## Example
 

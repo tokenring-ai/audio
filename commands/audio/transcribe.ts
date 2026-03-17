@@ -9,24 +9,25 @@ const inputSchema = {
       description: "Language code",
     },
   },
-  prompt: {
-    description: "The audio file to transcribe",
-    required: true,
-  },
+  positionals: [
+    {
+      name: "file",
+      description: "The audio file to transcribe",
+      required: true,
+    },
+  ],
   allowAttachments: false,
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({prompt, args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({positionals, args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
-  const query = prompt.trim();
-  if (!query) throw new CommandFailedError("Usage: /audio transcribe <filename> [flags]");
-  const result = await audioService.convertAudioToText(query, { language: args["--language"] as string }, agent);
+  const file = positionals.file;
+  if (!file) throw new CommandFailedError("Usage: /audio transcribe <filename> [flags]");
+  const result = await audioService.convertAudioToText(file, { language: args["--language"] as string }, agent);
   return `Transcription: ${result.text}`;
 }
 
-const help = `# /audio transcribe <file> [options]
-
-Transcribe an audio file to text.
+const help = `Transcribe an audio file to text.
 
 ## Usage
 

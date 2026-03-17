@@ -4,27 +4,24 @@ import AudioService from "../../AudioService.js";
 
 const inputSchema = {
   args: {},
-  prompt: {
-    description: "The filename to play",
-    required: true,
-  },
+  positionals: [
+    {
+      name: "file",
+      description: "The filename to play",
+      required: true,
+    },
+  ],
   allowAttachments: false,
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({prompt, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
-  const query = prompt.trim();
-  if (!query) throw new CommandFailedError("Usage: /audio play <filename> [flags]");
-  const result = await agent.requireServiceByType(AudioService).requireAudioProvider(agent).playback(query);
+async function execute({positionals, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+  const file = positionals.file
+
+  const result = await agent.requireServiceByType(AudioService).requireAudioProvider(agent).playback(file);
   return `Played: ${result}`;
 }
 
-const help = `# /audio play <file>
-
-Play an audio file through the speakers.
-
-## Usage
-
-/audio play <file>
+const help = `Play an audio file through the speakers.
 
 ## Example
 

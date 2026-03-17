@@ -3,10 +3,7 @@ import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} f
 import {SpeechModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import {AudioState} from "../../../../state/audioState.js";
 
-const inputSchema = {
-  args: {},
-  allowAttachments: false,
-} as const satisfies AgentCommandInputSchema;
+const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
 async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const modelsByProvider = await agent.busyWithActivity(
@@ -42,9 +39,7 @@ async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Prom
   return "Model selection cancelled. No changes made.";
 }
 
-const help = `# /audio model tts select
-
-Open an interactive tree-based selector to choose the TTS model. Models are grouped by provider with availability status.
+const help = `Open an interactive tree-based selector to choose the TTS model. Models are grouped by provider with availability status.
 
 ## Example
 

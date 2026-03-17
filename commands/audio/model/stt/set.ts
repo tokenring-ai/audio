@@ -4,23 +4,23 @@ import {AudioState} from "../../../../state/audioState.js";
 
 const inputSchema = {
   args: {},
-  prompt: {
-    description: "The model name to set",
-    required: true,
-  },
+  positionals: [
+    {
+      name: "model",
+      description: "The model name to set",
+      required: true,
+    },
+  ],
   allowAttachments: false,
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({prompt, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
-  const modelName = prompt.trim();
-  if (!modelName) throw new CommandFailedError("Model name required. Usage: /audio model stt set <model_name>");
+async function execute({positionals, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+  const modelName = positionals.model;
   agent.mutateState(AudioState, (state) => { state.transcribe.model = modelName; });
   return `STT model set to ${modelName}`;
 }
 
-const help = `# /audio model stt set <model>
-
-Set the active STT (speech-to-text) model.
+const help = `Set the active STT (speech-to-text) model.
 
 ## Example
 

@@ -2,10 +2,7 @@ import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
 import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {AudioState} from "../../../../state/audioState.js";
 
-const inputSchema = {
-  args: {},
-  allowAttachments: false,
-} as const satisfies AgentCommandInputSchema;
+const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
 async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const initialModel = agent.getState(AudioState).initialConfig.transcribe.model;
@@ -14,9 +11,7 @@ async function execute({agent}: AgentCommandInputType<typeof inputSchema>): Prom
   return `STT model reset to ${initialModel}`;
 }
 
-const help = `# /audio model stt reset
-
-Reset the STT model to the initial configured value.
+const help = `Reset the STT model to the initial configured value.
 
 ## Example
 

@@ -19,13 +19,7 @@ async function execute({args, agent}: AgentCommandInputType<typeof inputSchema>)
   return `Recording saved: ${result.filePath}`;
 }
 
-const help = `# /audio record [options]
-
-Record audio from the microphone. Press Ctrl+C to stop recording.
-
-## Usage
-
-/audio record [--format <fmt>]
+const help = `Record audio from the microphone. Press Ctrl+C to stop recording.
 
 ## Example
 
