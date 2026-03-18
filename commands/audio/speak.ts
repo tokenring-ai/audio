@@ -1,4 +1,3 @@
-import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
 import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import fs from "node:fs";
 import path from "path";
@@ -15,21 +14,19 @@ const inputSchema = {
       description: "Speech speed multiplier",
     },
   },
-  positionals: [
-    {
-      name: "text",
-      description: "The text to convert to speech",
-      required: true,
-      greedy: true
-    },
-  ],
-  allowAttachments: false,
+  remainder: {
+    name: "text",
+    description: "The text to convert to speech",
+    required: true,
+  }
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({positionals, args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({remainder, args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
-  const text = positionals.text;
-  const result = await audioService.convertTextToSpeech(text, { voice: args["--voice"] as string, speed: args["--speed"] ? Number(args["--speed"]) : undefined }, agent);
+  const result = await audioService.convertTextToSpeech(remainder, {
+    voice: args["--voice"] as string,
+    speed: args["--speed"] ? Number(args["--speed"]) : undefined
+  }, agent);
   const tmpFile = path.join(audioService.options.tmpDirectory, `speech-${Date.now()}.mp3`);
   fs.writeFileSync(tmpFile, result.data);
   await audioService.requireAudioProvider(agent).playback(tmpFile);

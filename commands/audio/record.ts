@@ -7,8 +7,7 @@ const inputSchema = {
       type: "string",
       description: "Audio format (e.g., wav, mp3)",
     },
-  },
-  allowAttachments: false,
+  }
 } as const satisfies AgentCommandInputSchema;
 
 async function execute({args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {

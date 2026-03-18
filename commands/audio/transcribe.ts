@@ -15,8 +15,7 @@ const inputSchema = {
       description: "The audio file to transcribe",
       required: true,
     },
-  ],
-  allowAttachments: false,
+  ]
 } as const satisfies AgentCommandInputSchema;
 
 async function execute({positionals, args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {

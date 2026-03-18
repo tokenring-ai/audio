@@ -1,4 +1,3 @@
-import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
 import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import {AudioState} from "../../../../state/audioState.js";
 
@@ -10,8 +9,7 @@ const inputSchema = {
       description: "The model name to set",
       required: true,
     },
-  ],
-  allowAttachments: false,
+  ]
 } as const satisfies AgentCommandInputSchema;
 
 async function execute({positionals, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {

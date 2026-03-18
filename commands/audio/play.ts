@@ -1,4 +1,3 @@
-import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
 import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import AudioService from "../../AudioService.js";
 
@@ -10,8 +9,7 @@ const inputSchema = {
       description: "The filename to play",
       required: true,
     },
-  ],
-  allowAttachments: false,
+  ]
 } as const satisfies AgentCommandInputSchema;
 
 async function execute({positionals, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
