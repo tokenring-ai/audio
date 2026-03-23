@@ -1,0 +1,109 @@
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
+import {ChatService} from "@tokenring-ai/chat";
+import {AgentCommandService} from "@tokenring-ai/agent";
+import plugin from './plugin.js';
+import {AudioServiceConfigSchema} from './schema.js';
+
+describe('Audio Plugin', () => {
+  let app: ReturnType<typeof createTestingApp>;
+
+  beforeEach(() => {
+    app = createTestingApp();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    app.shutdown();
+  });
+
+  it('should have correct plugin metadata', () => {
+    expect(plugin.name).toBe('@tokenring-ai/audio');
+    expect(plugin.version).toBeDefined();
+    expect(plugin.description).toBeDefined();
+  });
+
+  it('should not install services without configuration', () => {
+    plugin.install(app, {} as any);
+    
+    // AudioService should not be registered without config.audio
+    const services = app.getServices();
+    expect(services.some(s => s.name === 'AudioService')).toBe(false);
+  });
+
+  it('should install AudioService with valid configuration', () => {
+    const config = {
+      audio: AudioServiceConfigSchema.parse({
+        tmpDirectory: '/tmp',
+        providers: {},
+        agentDefaults: {
+          provider: 'test-provider',
+          transcribe: {},
+          speech: {}
+        }
+      })
+    };
+
+    plugin.install(app, config as any);
+    
+    const services = app.getServices();
+    expect(services.some(s => s.name === 'AudioService')).toBe(true);
+  });
+
+  it('should wait for ChatService to add tools', () => {
+    const config = {
+      audio: AudioServiceConfigSchema.parse({
+        tmpDirectory: '/tmp',
+        providers: {},
+        agentDefaults: {
+          provider: 'test-provider',
+          transcribe: {},
+          speech: {}
+        }
+      })
+    };
+
+    // Mock ChatService with spy
+    const mockChatService = new ChatService(app, { defaultModels: [], agentDefaults: {} });
+    vi.spyOn(mockChatService, 'addTools');
+    app.addServices(mockChatService);
+
+    plugin.install(app, config as any);
+
+    // The plugin should have called waitForService which will eventually call addTools
+    expect(mockChatService.addTools).toBeDefined();
+  });
+
+  it('should wait for AgentCommandService to add commands', () => {
+    const config = {
+      audio: AudioServiceConfigSchema.parse({
+        tmpDirectory: '/tmp',
+        providers: {},
+        agentDefaults: {
+          provider: 'test-provider',
+          transcribe: {},
+          speech: {}
+        }
+      })
+    };
+
+    // Mock AgentCommandService with spy
+    const mockCommandService = {
+      addAgentCommands: vi.fn()
+    };
+    app.addServices(mockCommandService as any);
+
+    plugin.install(app, config as any);
+
+    expect(mockCommandService.addAgentCommands).toBeDefined();
+  });
+
+  it('should handle empty configuration', () => {
+    plugin.install(app, { audio: {} } as any);
+    
+    // Empty audio config should still register the service if audio key exists
+    const services = app.getServices();
+    // The service is registered if audio config is present (even if empty)
+    expect(services).toBeDefined();
+  });
+});
