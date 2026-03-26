@@ -1,19 +1,19 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
-import AudioService from './AudioService.js';
-import {AudioState} from './state/audioState.js';
+import AudioService from './AudioService.ts';
+import {AudioState} from './state/audioState.ts';
 import {TranscriptionModelRegistry, SpeechModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
-import recordCommand from './commands/audio/record.js';
-import playCommand from './commands/audio/play.js';
-import speakCommand from './commands/audio/speak.js';
-import transcribeCommand from './commands/audio/transcribe.js';
-import sttGetCommand from './commands/audio/model/stt/get.js';
-import sttSetCommand from './commands/audio/model/stt/set.js';
-import sttResetCommand from './commands/audio/model/stt/reset.js';
-import ttsGetCommand from './commands/audio/model/tts/get.js';
-import ttsSetCommand from './commands/audio/model/tts/set.js';
-import ttsResetCommand from './commands/audio/model/tts/reset.js';
+import recordCommand from './commands/audio/record.ts';
+import playCommand from './commands/audio/play.ts';
+import speakCommand from './commands/audio/speak.ts';
+import transcribeCommand from './commands/audio/transcribe.ts';
+import sttGetCommand from './commands/audio/model/stt/get.ts';
+import sttSetCommand from './commands/audio/model/stt/set.ts';
+import sttResetCommand from './commands/audio/model/stt/reset.ts';
+import ttsGetCommand from './commands/audio/model/tts/get.ts';
+import ttsSetCommand from './commands/audio/model/tts/set.ts';
+import ttsResetCommand from './commands/audio/model/tts/reset.ts';
 
 describe('Audio Commands', () => {
   let app: ReturnType<typeof createTestingApp>;

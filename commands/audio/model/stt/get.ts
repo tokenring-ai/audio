@@ -1,5 +1,5 @@
 import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
-import {AudioState} from "../../../../state/audioState.js";
+import {AudioState} from "../../../../state/audioState.ts";
 
 const inputSchema = {} as const satisfies AgentCommandInputSchema;
 

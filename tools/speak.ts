@@ -3,7 +3,7 @@ import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
 import fs from "node:fs";
 import path from "path";
 import {z} from "zod";
-import AudioService from "../AudioService.js";
+import AudioService from "../AudioService.ts";
 
 const name = "voice_speak";
 const displayName = "Audio/speak";

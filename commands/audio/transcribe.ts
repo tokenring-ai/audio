@@ -1,6 +1,6 @@
 import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
 import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
-import AudioService from "../../AudioService.js";
+import AudioService from "../../AudioService.ts";
 
 const inputSchema = {
   args: {

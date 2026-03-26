@@ -5,7 +5,7 @@ import {z} from "zod";
 import AudioService from "./AudioService.ts";
 import agentCommands from "./commands.ts";
 import {AudioServiceConfigSchema} from "./index.ts";
-import packageJSON from './package.json' with {type: 'json'};
+import packageJSON from "./package.json" with {type: "json"};
 import tools from "./tools.ts";
 
 const packageConfigSchema = z.object({

@@ -10,7 +10,7 @@ export const AudioSpeechConfigSchema = z.object({
   model: z.string().default('OpenAI:tts-1'),
   voice: z.string().default('alloy'),
   speed: z.number().default(1.0),
-})
+});
 
 export const AudioAgentConfigSchema = z.object({
   provider: z.string().optional(),

@@ -1,7 +1,7 @@
 import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import fs from "node:fs";
 import path from "path";
-import AudioService from "../../AudioService.js";
+import AudioService from "../../AudioService.ts";
 
 const inputSchema = {
   args: {

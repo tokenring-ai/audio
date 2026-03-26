@@ -1,7 +1,7 @@
 import Agent from "@tokenring-ai/agent/Agent";
 import {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
 import {z} from "zod";
-import AudioService from "../AudioService.js";
+import AudioService from "../AudioService.ts";
 
 const name = "voice_record";
 const displayName = "Audio/record";

@@ -2,8 +2,8 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
 import {ChatService} from "@tokenring-ai/chat";
 import {AgentCommandService} from "@tokenring-ai/agent";
-import plugin from './plugin.js';
-import {AudioServiceConfigSchema} from './schema.js';
+import plugin from './plugin.ts';
+import {AudioServiceConfigSchema} from './schema.ts';
 
 describe('Audio Plugin', () => {
   let app: ReturnType<typeof createTestingApp>;

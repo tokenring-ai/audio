@@ -2,9 +2,9 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
 import {TranscriptionModelRegistry, SpeechModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
-import AudioService from './AudioService.js';
-import {AudioServiceConfigSchema} from './schema.js';
-import {AudioState} from './state/audioState.js';
+import AudioService from './AudioService.ts';
+import {AudioServiceConfigSchema} from './schema.ts';
+import {AudioState} from './state/audioState.ts';
 
 describe('AudioService', () => {
   let app: ReturnType<typeof createTestingApp>;
