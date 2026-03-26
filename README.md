@@ -31,13 +31,11 @@ bun install @tokenring-ai/audio
 ```
 
 ## Dependencies
-
 - `@tokenring-ai/ai-client` (0.2.0) - AI client services for transcription and speech
 - `@tokenring-ai/app` (0.2.0) - Base application framework
 - `@tokenring-ai/chat` (0.2.0) - Chat service for tool registration
 - `@tokenring-ai/agent` (0.2.0) - Agent framework for commands and state
 - `@tokenring-ai/utility` (0.2.0) - Utility functions including KeyedRegistry
-- `@tokenring-ai/chat` (0.2.0) - Chat service for tool registration
 - `zod` (^4.3.6) - Schema validation
 
 ## Core Components
@@ -237,7 +235,7 @@ Converts text to speech and plays it through the speakers.
 - `<text>` - Text to convert to speech
 
 **Options:**
-- `--voice <id>` - Voice ID to use for speech generation (currently commented out in tool)
+- `--voice <id>` - Voice ID to use for speech generation (currently not passed to tool implementation)
 - `--speed <n>` - Speech speed (numeric value)
 
 **Example:**
@@ -248,7 +246,7 @@ Converts text to speech and plays it through the speakers.
 
 **Output:** `Speech generated: <filepath>`
 
-**Note:** The `--voice` option is accepted by the command but currently not used in the tool implementation.
+**Note:** The `--voice` option is accepted by the command but currently not passed to the speech generation tool implementation. The voice selection is controlled through the agent state configuration.
 
 ### Transcribe Command
 
@@ -422,7 +420,7 @@ const result = await agent.callTool('voice_speak', {
 
 **Errors:** Throws `Error` if text is empty or not provided.
 
-**Note:** The `voice` parameter is defined in the schema but currently commented out in the implementation.
+**Note:** The `voice` parameter is defined in the schema but currently not used in the implementation. Voice selection is controlled through the agent state configuration.
 
 ### audio_playback
 
