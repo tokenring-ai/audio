@@ -26,7 +26,6 @@ export const AudioAgentDefaultsSchema = z.object({
 
 export const AudioServiceConfigSchema = z.object({
   tmpDirectory: z.string().default('/tmp'),
-  providers: z.record(z.string(), z.any()),
   agentDefaults: AudioAgentDefaultsSchema
 });
 
