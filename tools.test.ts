@@ -1,13 +1,12 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent";
+import {SpeechModelRegistry, TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import AudioService from './AudioService.ts';
-import {AudioState} from './state/audioState.ts';
-import {TranscriptionModelRegistry, SpeechModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
-import recordTool from './tools/record.ts';
-import transcribeTool from './tools/transcribe.ts';
-import speakTool from './tools/speak.ts';
 import playbackTool from './tools/playback.ts';
+import recordTool from './tools/record.ts';
+import speakTool from './tools/speak.ts';
+import transcribeTool from './tools/transcribe.ts';
 
 describe('Audio Tools', () => {
   let app: ReturnType<typeof createTestingApp>;

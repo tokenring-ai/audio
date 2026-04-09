@@ -1,7 +1,6 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
 import {ChatService} from "@tokenring-ai/chat";
-import {AgentCommandService} from "@tokenring-ai/agent";
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import plugin from './plugin.ts';
 import {AudioServiceConfigSchema} from './schema.ts';
 

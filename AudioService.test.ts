@@ -1,7 +1,7 @@
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent";
+import {SpeechModelRegistry, TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
-import {TranscriptionModelRegistry, SpeechModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import AudioService from './AudioService.ts';
 import {AudioServiceConfigSchema} from './schema.ts';
 import {AudioState} from './state/audioState.ts';
