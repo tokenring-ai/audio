@@ -1,5 +1,5 @@
 import {CommandFailedError} from "@tokenring-ai/agent/AgentError";
-import {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand,} from "@tokenring-ai/agent/types";
 import AudioService from "../../AudioService.ts";
 
 const inputSchema = {
@@ -15,14 +15,23 @@ const inputSchema = {
       description: "The audio file to transcribe",
       required: true,
     },
-  ]
+  ],
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({positionals, args, agent}: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({
+                         positionals,
+                         args,
+                         agent,
+                       }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
   const file = positionals.file;
-  if (!file) throw new CommandFailedError("Usage: /audio transcribe <filename> [flags]");
-  const result = await audioService.convertAudioToText(file, { language: args["--language"] as string }, agent);
+  if (!file)
+    throw new CommandFailedError("Usage: /audio transcribe <filename> [flags]");
+  const result = await audioService.convertAudioToText(
+    file,
+    {language: args["--language"] as string},
+    agent,
+  );
   return `Transcription: ${result.text}`;
 }
 
@@ -37,4 +46,10 @@ const help = `Transcribe an audio file to text.
 /audio transcribe recording.wav
 /audio transcribe audio.mp3 --language en-US`;
 
-export default {name: "audio transcribe", description: "Transcribe audio to text", inputSchema, help, execute} satisfies TokenRingAgentCommand<typeof inputSchema>;
+export default {
+  name: "audio transcribe",
+  description: "Transcribe audio to text",
+  inputSchema,
+  help,
+  execute,
+} satisfies TokenRingAgentCommand<typeof inputSchema>;

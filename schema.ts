@@ -1,22 +1,24 @@
 import {z} from "zod";
 
 export const AudioTranscriptionConfigSchema = z.object({
-  model: z.string().default('whisper-1'),
-  prompt: z.string().default('Convert the audio to english'),
-  language: z.string().default('en'),
+  model: z.string().default("whisper-1"),
+  prompt: z.string().default("Convert the audio to english"),
+  language: z.string().default("en"),
 });
 
 export const AudioSpeechConfigSchema = z.object({
-  model: z.string().default('OpenAI:tts-1'),
-  voice: z.string().default('alloy'),
+  model: z.string().default("OpenAI:tts-1"),
+  voice: z.string().default("alloy"),
   speed: z.number().default(1.0),
 });
 
-export const AudioAgentConfigSchema = z.object({
-  provider: z.string().optional(),
-  transcribe: AudioTranscriptionConfigSchema.optional(),
-  speech: AudioSpeechConfigSchema.optional()
-}).prefault({})
+export const AudioAgentConfigSchema = z
+  .object({
+    provider: z.string().optional(),
+    transcribe: AudioTranscriptionConfigSchema.optional(),
+    speech: AudioSpeechConfigSchema.optional(),
+  })
+  .prefault({});
 
 export const AudioAgentDefaultsSchema = z.object({
   provider: z.string(),
@@ -25,7 +27,6 @@ export const AudioAgentDefaultsSchema = z.object({
 });
 
 export const AudioServiceConfigSchema = z.object({
-  tmpDirectory: z.string().default('/tmp'),
-  agentDefaults: AudioAgentDefaultsSchema
+  tmpDirectory: z.string().default("/tmp"),
+  agentDefaults: AudioAgentDefaultsSchema,
 });
-

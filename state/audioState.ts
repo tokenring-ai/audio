@@ -1,12 +1,13 @@
-import {Agent} from "@tokenring-ai/agent";
+import type {Agent} from "@tokenring-ai/agent";
 import {AgentStateSlice} from "@tokenring-ai/agent/types";
+import markdownList from "@tokenring-ai/utility/string/markdownList";
 import {z} from "zod";
-import {AudioServiceConfigSchema, AudioSpeechConfigSchema, AudioTranscriptionConfigSchema} from "../schema.ts";
+import {type AudioServiceConfigSchema, AudioSpeechConfigSchema, AudioTranscriptionConfigSchema,} from "../schema.ts";
 
 const serializationSchema = z.object({
   activeProvider: z.string().nullable(),
   transcribe: AudioTranscriptionConfigSchema,
-  speech: AudioSpeechConfigSchema
+  speech: AudioSpeechConfigSchema,
 });
 
 export class AudioState extends AgentStateSlice<typeof serializationSchema> {
@@ -14,7 +15,11 @@ export class AudioState extends AgentStateSlice<typeof serializationSchema> {
   transcribe: z.output<typeof AudioTranscriptionConfigSchema>;
   speech: z.output<typeof AudioSpeechConfigSchema>;
 
-  constructor(readonly initialConfig: z.output<typeof AudioServiceConfigSchema>["agentDefaults"]) {
+  constructor(
+    readonly initialConfig: z.output<
+      typeof AudioServiceConfigSchema
+    >["agentDefaults"],
+  ) {
     super("AudioState", serializationSchema);
     this.activeProvider = initialConfig.provider ?? null;
     this.transcribe = initialConfig.transcribe;
@@ -32,7 +37,7 @@ export class AudioState extends AgentStateSlice<typeof serializationSchema> {
     return {
       activeProvider: this.activeProvider,
       transcribe: this.transcribe,
-      speech: this.speech
+      speech: this.speech,
     };
   }
 
@@ -42,15 +47,15 @@ export class AudioState extends AgentStateSlice<typeof serializationSchema> {
     this.speech = data.speech;
   }
 
-  show(): string[] {
-    return [
-      `Active Provider: ${this.activeProvider}`,
-      `Transcription Model: ${this.transcribe?.model ?? ''}`,
-      `Transcription Prompt: ${this.transcribe?.prompt ?? ''}`,
-      `Transcription Language: ${this.transcribe?.language ?? ''}`,
-      `Speech Model: ${this.speech?.model ?? ''}`,
-      `Speech Voice: ${this.speech?.voice ?? ''}`,
-      `Speech Speed: ${this.speech?.speed ?? ''}`,
-    ];
+  show(): string {
+    return `Active Provider: ${this.activeProvider}
+${markdownList([
+      `Transcription Model: ${this.transcribe?.model ?? ""}`,
+      `Transcription Prompt: ${this.transcribe?.prompt ?? ""}`,
+      `Transcription Language: ${this.transcribe?.language ?? ""}`,
+      `Speech Model: ${this.speech?.model ?? ""}`,
+      `Speech Voice: ${this.speech?.voice ?? ""}`,
+      `Speech Speed: ${this.speech?.speed ?? ""}`,
+    ])}`;
   }
 }

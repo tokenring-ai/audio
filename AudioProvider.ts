@@ -14,6 +14,10 @@ export interface AudioResult {
 }
 
 export interface AudioProvider {
-  record(abortSignal: AbortSignal, options: RecordingOptions): Promise<RecordingResult>;
+  record(
+    abortSignal: AbortSignal,
+    options: RecordingOptions,
+  ): Promise<RecordingResult>;
+
   playback(filename: string): Promise<string>;
 }
