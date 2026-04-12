@@ -2,7 +2,7 @@ import type {Agent} from "@tokenring-ai/agent";
 import {AgentStateSlice} from "@tokenring-ai/agent/types";
 import markdownList from "@tokenring-ai/utility/string/markdownList";
 import {z} from "zod";
-import {type AudioServiceConfigSchema, AudioSpeechConfigSchema, AudioTranscriptionConfigSchema,} from "../schema.ts";
+import {type AudioServiceConfigSchema, AudioSpeechConfigSchema, AudioTranscriptionConfigSchema} from "../schema.ts";
 
 const serializationSchema = z.object({
   activeProvider: z.string().nullable(),

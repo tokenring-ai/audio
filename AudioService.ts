@@ -1,6 +1,6 @@
 import type {Agent} from "@tokenring-ai/agent";
 import type {TranscriptionResult} from "@tokenring-ai/ai-client/client/AITranscriptionClient";
-import {SpeechModelRegistry, TranscriptionModelRegistry,} from "@tokenring-ai/ai-client/ModelRegistry";
+import {SpeechModelRegistry, TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
 import type {TokenRingService} from "@tokenring-ai/app/types";
 import deepMerge from "@tokenring-ai/utility/object/deepMerge";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";

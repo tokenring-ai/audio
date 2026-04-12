@@ -1,5 +1,5 @@
 import type Agent from "@tokenring-ai/agent/Agent";
-import type {TokenRingToolDefinition} from "@tokenring-ai/chat/schema";
+import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
 import fs from "node:fs";
 import path from "node:path";
 import {z} from "zod";
@@ -15,7 +15,7 @@ async function execute(
     speed,
   }: z.output<typeof inputSchema>,
   agent: Agent,
-): Promise<string> {
+): Promise<TokenRingToolResult> {
   const audioService = agent.requireServiceByType(AudioService);
 
   if (!text) {
@@ -40,7 +40,7 @@ async function execute(
 
   await audioService.requireAudioProvider(agent).playback(tmpFile);
 
-  return "Playback succeeded";
+  return `Playback succeeded`;
 }
 
 const description = "Convert text to speech using the active voice provider";

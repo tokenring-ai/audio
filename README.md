@@ -31,6 +31,7 @@ bun install @tokenring-ai/audio
 ```
 
 ## Dependencies
+
 - `@tokenring-ai/ai-client` (0.2.0) - AI client services for transcription and speech
 - `@tokenring-ai/app` (0.2.0) - Base application framework
 - `@tokenring-ai/chat` (0.2.0) - Chat service for tool registration
@@ -193,9 +194,11 @@ The package provides the `/audio` command suite for interactive audio operations
 Records audio from the microphone. Press Ctrl+C to stop recording.
 
 **Options:**
+
 - `--format <fmt>` - Audio format for recording
 
 **Example:**
+
 ```bash
 /audio record
 /audio record --format wav
@@ -212,9 +215,11 @@ Records audio from the microphone. Press Ctrl+C to stop recording.
 Plays an audio file through the speakers.
 
 **Arguments:**
+
 - `<file>` - Path to the audio file to play
 
 **Example:**
+
 ```bash
 /audio play output.mp3
 ```
@@ -232,13 +237,16 @@ Plays an audio file through the speakers.
 Converts text to speech and plays it through the speakers.
 
 **Arguments:**
+
 - `<text>` - Text to convert to speech
 
 **Options:**
+
 - `--voice <id>` - Voice ID to use for speech generation (currently not passed to tool implementation)
 - `--speed <n>` - Speech speed (numeric value)
 
 **Example:**
+
 ```bash
 /audio speak "Hello world"
 /audio speak "Welcome" --voice female --speed 1.2
@@ -257,12 +265,15 @@ Converts text to speech and plays it through the speakers.
 Transcribes an audio file to text.
 
 **Arguments:**
+
 - `<file>` - Path to the audio file to transcribe
 
 **Options:**
+
 - `--language <code>` - Language code for transcription (e.g., `en`, `en-US`)
 
 **Example:**
+
 ```bash
 /audio transcribe recording.wav
 /audio transcribe audio.mp3 --language en-US
@@ -284,6 +295,7 @@ Transcribes an audio file to text.
 | `/audio model tts reset` | Reset to initial configured model |
 
 **Examples:**
+
 ```bash
 /audio model tts get
 /audio model tts set openai/tts-1
@@ -301,6 +313,7 @@ Transcribes an audio file to text.
 | `/audio model stt reset` | Reset to initial configured model |
 
 **Examples:**
+
 ```bash
 /audio model stt get
 /audio model stt set openai/whisper-1
@@ -321,6 +334,7 @@ Both TTS and STT interactive selectors (`/audio model tts select` and `/audio mo
 - Provider-level summary showing online/total counts
 
 **Example Output:**
+
 ```
 Choose a Text to Speech model:
 ├── OpenAI (2/3 online)
@@ -356,6 +370,7 @@ Record audio using the active voice provider.
 **Returns:** `{ type: 'json', data: { filePath: string } }`
 
 **Example:**
+
 ```typescript
 const result = await agent.callTool('voice_record', {
   format: 'wav',
@@ -383,6 +398,7 @@ Transcribe audio file to text.
 **Returns:** `string` - The transcription text
 
 **Example:**
+
 ```typescript
 const transcription = await agent.callTool('voice_transcribe', {
   audioFile: '/path/to/recording.wav',
@@ -410,6 +426,7 @@ Convert text to speech and play it.
 **Returns:** `string` - "Playback succeeded"
 
 **Example:**
+
 ```typescript
 const result = await agent.callTool('voice_speak', {
   text: "Hello, world!",
@@ -440,6 +457,7 @@ Play audio file.
 **Returns:** `{ type: 'json', data: { filePath: string } }`
 
 **Example:**
+
 ```typescript
 const result = await agent.callTool('audio_playback', {
   filename: '/path/to/audio.mp3'
@@ -626,6 +644,7 @@ app.registerPlugin(audioPlugin);
 ```
 
 The plugin automatically:
+
 1. Registers the `AudioService` with the application (if audio config is provided)
 2. Registers all audio tools with the `ChatService`
 3. Registers all agent commands with the `AgentCommandService`
