@@ -51,7 +51,7 @@ export default class AudioService implements TokenRingService {
       TranscriptionModelRegistry,
     );
     const {transcribe} = agent.getState(AudioState);
-    const client = await transcriptionModelRegistry.getClient(transcribe.model);
+    const client = transcriptionModelRegistry.getClient(transcribe.model);
 
     const audioBuffer =
       typeof audioFile === "string" ? fs.readFileSync(audioFile) : audioFile;
@@ -75,7 +75,7 @@ export default class AudioService implements TokenRingService {
   ): Promise<AudioResult> {
     const speechModelRegistry = agent.requireServiceByType(SpeechModelRegistry);
     const {speech} = agent.getState(AudioState);
-    const client = await speechModelRegistry.getClient(speech.model);
+    const client = speechModelRegistry.getClient(speech.model);
 
     const [audioData] = await client.generateSpeech(
       {
