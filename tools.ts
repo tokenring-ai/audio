@@ -3,9 +3,9 @@ import record from "./tools/record.ts";
 import speak from "./tools/speak.ts";
 import transcribe from "./tools/transcribe.ts";
 
-export default {
+export default [
   record,
   transcribe,
   speak,
   playback,
-};
+];

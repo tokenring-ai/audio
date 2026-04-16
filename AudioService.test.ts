@@ -83,7 +83,7 @@ describe('AudioService', () => {
     const providers = audioService.getAvailableProviders();
     expect(providers).toContain('test-provider');
     
-    const retrieved = audioService.providerRegistry.getItemByName('test-provider');
+    const retrieved = audioService.providerRegistry.get('test-provider');
     expect(retrieved).toBe(mockProvider);
   });
 

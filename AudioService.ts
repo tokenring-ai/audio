@@ -16,8 +16,8 @@ export default class AudioService implements TokenRingService {
 
   private providerRegistry = new KeyedRegistry<AudioProvider>();
 
-  registerProvider = this.providerRegistry.register;
-  getAvailableProviders = this.providerRegistry.getAllItemNames;
+  registerProvider = this.providerRegistry.set;
+  getAvailableProviders = this.providerRegistry.keysArray;
 
   constructor(readonly options: z.output<typeof AudioServiceConfigSchema>) {
   }
@@ -33,7 +33,7 @@ export default class AudioService implements TokenRingService {
   requireAudioProvider(agent: Agent): AudioProvider {
     const providerName = agent.getState(AudioState).activeProvider;
     if (!providerName) throw new Error("No audio provider has been enabled.");
-    return this.providerRegistry.requireItemByName(providerName);
+    return this.providerRegistry.require(providerName);
   }
 
   setActiveProvider(name: string, agent: Agent): void {
