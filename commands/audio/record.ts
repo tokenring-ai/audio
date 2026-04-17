@@ -3,7 +3,7 @@ import AudioService from "../../AudioService.ts";
 
 const inputSchema = {
   args: {
-    "--format": {
+    "format": {
       type: "string",
       description: "Audio format (e.g., wav, mp3)",
     },
@@ -19,7 +19,7 @@ async function execute({
   agent.infoMessage("Recording... Press Ctrl+C to stop");
   const result = await audioService
     .requireAudioProvider(agent)
-    .record(abortController.signal, {format: args["--format"] as string});
+    .record(abortController.signal, {format: args.format as string});
   return `Recording saved: ${result.filePath}`;
 }
 

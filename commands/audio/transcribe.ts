@@ -4,7 +4,7 @@ import AudioService from "../../AudioService.ts";
 
 const inputSchema = {
   args: {
-    "--language": {
+    "language": {
       type: "string",
       description: "Language code",
     },
@@ -29,7 +29,7 @@ async function execute({
     throw new CommandFailedError("Usage: /audio transcribe <filename> [flags]");
   const result = await audioService.convertAudioToText(
     file,
-    {language: args["--language"] as string},
+    {language: args.language as string},
     agent,
   );
   return `Transcription: ${result.text}`;

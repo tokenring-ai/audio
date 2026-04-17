@@ -5,11 +5,11 @@ import AudioService from "../../AudioService.ts";
 
 const inputSchema = {
   args: {
-    "--voice": {
+    "voice": {
       type: "string",
       description: "Voice ID",
     },
-    "--speed": {
+    "speed": {
       type: "string",
       description: "Speech speed multiplier",
     },
@@ -30,8 +30,8 @@ async function execute({
   const result = await audioService.convertTextToSpeech(
     remainder,
     {
-      voice: args["--voice"] as string,
-      speed: args["--speed"] ? Number(args["--speed"]) : undefined,
+      voice: args.voice as string,
+      speed: args.speed ? Number(args.speed) : undefined,
     },
     agent,
   );
