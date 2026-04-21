@@ -1,39 +1,28 @@
-import type {TreeLeaf} from "@tokenring-ai/agent/question";
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
-import {TranscriptionModelRegistry} from "@tokenring-ai/ai-client/ModelRegistry";
-import {AudioState} from "../../../../state/audioState.ts";
+import type { TreeLeaf } from "@tokenring-ai/agent/question";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
+import { TranscriptionModelRegistry } from "@tokenring-ai/ai-client/ModelRegistry";
+import { AudioState } from "../../../../state/audioState.ts";
 
 const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
-async function execute({
-                         agent,
-                       }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({ agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const modelsByProvider = await agent.busyWithActivity(
     "Checking online status of models...",
-    agent
-      .requireServiceByType(TranscriptionModelRegistry)
-      .getModelsByProvider(),
+    agent.requireServiceByType(TranscriptionModelRegistry).getModelsByProvider(),
   );
 
   const tree: TreeLeaf[] = Object.entries(modelsByProvider)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([provider, providerModels]) => {
       const sorted = Object.entries(providerModels).sort(([, a], [, b]) =>
-        a.status === b.status
-          ? a.modelSpec.modelId.localeCompare(b.modelSpec.modelId)
-          : a.status.localeCompare(b.status),
+        a.status === b.status ? a.modelSpec.modelId.localeCompare(b.modelSpec.modelId) : a.status.localeCompare(b.status),
       );
-      const onlineCount = Object.values(providerModels).filter(
-        (m) => m.status === "online",
-      ).length;
+      const onlineCount = Object.values(providerModels).filter(m => m.status === "online").length;
       return {
         name: `${provider} (${onlineCount}/${Object.keys(providerModels).length} online)`,
         children: sorted.map(([modelName, model]) => ({
           value: modelName,
-          name:
-            model.status === "online"
-              ? model.modelSpec.modelId
-              : `${model.modelSpec.modelId} (${model.status})`,
+          name: model.status === "online" ? model.modelSpec.modelId : `${model.modelSpec.modelId} (${model.status})`,
         })),
       };
     });
@@ -51,7 +40,7 @@ async function execute({
   });
 
   if (selection !== null && selection.length > 0) {
-    agent.mutateState(AudioState, (state) => {
+    agent.mutateState(AudioState, state => {
       state.transcribe.model = selection[0];
     });
     return `STT model set to ${selection[0]}`;

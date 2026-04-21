@@ -1,5 +1,5 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
-import {AudioState} from "../../../../state/audioState.ts";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
+import { AudioState } from "../../../../state/audioState.ts";
 
 const inputSchema = {
   args: {},
@@ -12,12 +12,9 @@ const inputSchema = {
   ],
 } as const satisfies AgentCommandInputSchema;
 
-function execute({
-                   positionals,
-                   agent,
-                 }: AgentCommandInputType<typeof inputSchema>): string {
+function execute({ positionals, agent }: AgentCommandInputType<typeof inputSchema>): string {
   const modelName = positionals.model;
-  agent.mutateState(AudioState, (state) => {
+  agent.mutateState(AudioState, state => {
     state.transcribe.model = modelName;
   });
   return `STT model set to ${modelName}`;

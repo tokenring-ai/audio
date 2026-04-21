@@ -1,15 +1,12 @@
 import type Agent from "@tokenring-ai/agent/Agent";
-import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
-import {z} from "zod";
+import type { TokenRingToolDefinition, TokenRingToolResult } from "@tokenring-ai/chat/schema";
+import { z } from "zod";
 import AudioService from "../AudioService.ts";
 
 const name = "voice_transcribe";
 const displayName = "Audio/transcribe";
 
-async function execute(
-  {audioFile, language}: z.output<typeof inputSchema>,
-  agent: Agent,
-): Promise<TokenRingToolResult> {
+async function execute({ audioFile, language }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const voiceService = agent.requireServiceByType(AudioService);
   agent.infoMessage(`[${name}] Transcribing audio...`);
   const result = await voiceService.convertAudioToText(

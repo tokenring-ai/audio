@@ -1,20 +1,15 @@
 import type Agent from "@tokenring-ai/agent/Agent";
-import type {TokenRingToolDefinition, TokenRingToolResult} from "@tokenring-ai/chat/schema";
-import {z} from "zod";
+import type { TokenRingToolDefinition, TokenRingToolResult } from "@tokenring-ai/chat/schema";
+import { z } from "zod";
 import AudioService from "../AudioService.ts";
 
 const name = "audio_playback";
 const displayName = "Audio/playback";
 
-async function execute(
-  {filename}: z.output<typeof inputSchema>,
-  agent: Agent,
-): Promise<TokenRingToolResult> {
+async function execute({ filename }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const voiceService = agent.requireServiceByType(AudioService);
   agent.infoMessage(`[${name}] Playing audio: ${filename}`);
-  const result = await voiceService
-    .requireAudioProvider(agent)
-    .playback(filename);
+  const result = await voiceService.requireAudioProvider(agent).playback(filename);
   return `Played audio file: ${result}`;
 }
 

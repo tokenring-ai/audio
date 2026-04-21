@@ -1,15 +1,15 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
 import fs from "node:fs";
 import path from "node:path";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
 import AudioService from "../../AudioService.ts";
 
 const inputSchema = {
   args: {
-    "voice": {
+    voice: {
       type: "string",
       description: "Voice ID",
     },
-    "speed": {
+    speed: {
       type: "string",
       description: "Speech speed multiplier",
     },
@@ -21,11 +21,7 @@ const inputSchema = {
   },
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({
-                         remainder,
-                         args,
-                         agent,
-                       }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({ remainder, args, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
   const result = await audioService.convertTextToSpeech(
     remainder,
@@ -35,10 +31,7 @@ async function execute({
     },
     agent,
   );
-  const tmpFile = path.join(
-    audioService.options.tmpDirectory,
-    `speech-${Date.now()}.mp3`,
-  );
+  const tmpFile = path.join(audioService.options.tmpDirectory, `speech-${Date.now()}.mp3`);
   fs.writeFileSync(tmpFile, result.data);
   await audioService.requireAudioProvider(agent).playback(tmpFile);
   return `Speech generated: ${tmpFile}`;

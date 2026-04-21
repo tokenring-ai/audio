@@ -1,4 +1,4 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
 import AudioService from "../../AudioService.ts";
 
 const inputSchema = {
@@ -12,16 +12,10 @@ const inputSchema = {
   ],
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({
-                         positionals,
-                         agent,
-                       }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({ positionals, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const file = positionals.file;
 
-  const result = await agent
-    .requireServiceByType(AudioService)
-    .requireAudioProvider(agent)
-    .playback(file);
+  const result = await agent.requireServiceByType(AudioService).requireAudioProvider(agent).playback(file);
   return `Played: ${result}`;
 }
 

@@ -1,4 +1,4 @@
-import {z} from "zod";
+import { z } from "zod";
 
 export const AudioTranscriptionConfigSchema = z.object({
   model: z.string().default("whisper-1"),
@@ -14,9 +14,9 @@ export const AudioSpeechConfigSchema = z.object({
 
 export const AudioAgentConfigSchema = z
   .object({
-    provider: z.string().optional(),
-    transcribe: AudioTranscriptionConfigSchema.optional(),
-    speech: AudioSpeechConfigSchema.optional(),
+    provider: z.string().exactOptional(),
+    transcribe: AudioTranscriptionConfigSchema.exactOptional(),
+    speech: AudioSpeechConfigSchema.exactOptional(),
   })
   .prefault({});
 

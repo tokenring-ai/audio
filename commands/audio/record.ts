@@ -1,25 +1,20 @@
-import type {AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand} from "@tokenring-ai/agent/types";
+import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
 import AudioService from "../../AudioService.ts";
 
 const inputSchema = {
   args: {
-    "format": {
+    format: {
       type: "string",
       description: "Audio format (e.g., wav, mp3)",
     },
   },
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({
-                         args,
-                         agent,
-                       }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({ args, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
   const abortController = new AbortController();
   agent.infoMessage("Recording... Press Ctrl+C to stop");
-  const result = await audioService
-    .requireAudioProvider(agent)
-    .record(abortController.signal, {format: args.format as string});
+  const result = await audioService.requireAudioProvider(agent).record(abortController.signal, { format: args.format as string });
   return `Recording saved: ${result.filePath}`;
 }
 

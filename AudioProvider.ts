@@ -1,8 +1,8 @@
 export interface RecordingOptions {
-  sampleRate?: number;
-  channels?: number;
-  format?: string;
-  timeout?: number;
+  sampleRate?: number | undefined;
+  channels?: number | undefined;
+  format?: string | undefined;
+  timeout?: number | undefined;
 }
 
 export interface RecordingResult {
@@ -14,10 +14,7 @@ export interface AudioResult {
 }
 
 export interface AudioProvider {
-  record(
-    abortSignal: AbortSignal,
-    options: RecordingOptions,
-  ): Promise<RecordingResult>;
+  record(abortSignal: AbortSignal, options: RecordingOptions): Promise<RecordingResult>;
 
   playback(filename: string): Promise<string>;
 }
