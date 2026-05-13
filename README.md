@@ -326,9 +326,9 @@ Both TTS and STT interactive selectors (`/audio model tts select` and `/audio mo
 
 - Models grouped by provider (OpenAI, Anthropic, etc.)
 - Status indicators:
- - ✅ **Online** - Ready for immediate use
- - 🧊 **Cold** - May have startup delay
- - 🔴 **Offline** - Currently unavailable
+- ✅ **Online** - Ready for immediate use
+- 🧊 **Cold** - May have startup delay
+- 🔴 **Offline** - Currently unavailable
 - Tree-based selection interface
 - Provider-level summary showing online/total counts
 

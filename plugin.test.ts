@@ -1,10 +1,10 @@
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
-import {ChatService} from "@tokenring-ai/chat";
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import plugin from './plugin.ts';
-import {AudioServiceConfigSchema} from './schema.ts';
+import { ChatService } from "@tokenring-ai/chat";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import plugin from "./plugin.ts";
+import { AudioServiceConfigSchema } from "./schema.ts";
 
-describe('Audio Plugin', () => {
+describe("Audio Plugin", () => {
   let app: ReturnType<typeof createTestingApp>;
 
   beforeEach(() => {
@@ -16,27 +16,27 @@ describe('Audio Plugin', () => {
     app.shutdown();
   });
 
-  it('should have correct plugin metadata', () => {
-    expect(plugin.name).toBe('@tokenring-ai/audio');
+  it("should have correct plugin metadata", () => {
+    expect(plugin.name).toBe("@tokenring-ai/audio");
     expect(plugin.version).toBeDefined();
     expect(plugin.description).toBeDefined();
   });
 
-  it('should not install services without configuration', () => {
+  it("should not install services without configuration", () => {
     plugin.install(app, {} as any);
-    
+
     // AudioService should not be registered without config.audio
     const services = app.getServices();
-    expect(services.some(s => s.name === 'AudioService')).toBe(false);
+    expect(services.some(s => s.name === "AudioService")).toBe(false);
   });
 
-  it('should install AudioService with valid configuration', () => {
+  it("should install AudioService with valid configuration", () => {
     const config = {
       audio: AudioServiceConfigSchema.parse({
-        tmpDirectory: '/tmp',
+        tmpDirectory: "/tmp",
         providers: {},
         agentDefaults: {
-          provider: 'test-provider',
+          provider: "test-provider",
           transcribe: {},
           speech: {}
         }
@@ -44,18 +44,18 @@ describe('Audio Plugin', () => {
     };
 
     plugin.install(app, config as any);
-    
+
     const services = app.getServices();
-    expect(services.some(s => s.name === 'AudioService')).toBe(true);
+    expect(services.some(s => s.name === "AudioService")).toBe(true);
   });
 
-  it('should wait for ChatService to add tools', () => {
+  it("should wait for ChatService to add tools", () => {
     const config = {
       audio: AudioServiceConfigSchema.parse({
-        tmpDirectory: '/tmp',
+        tmpDirectory: "/tmp",
         providers: {},
         agentDefaults: {
-          provider: 'test-provider',
+          provider: "test-provider",
           transcribe: {},
           speech: {}
         }
@@ -64,7 +64,7 @@ describe('Audio Plugin', () => {
 
     // Mock ChatService with spy
     const mockChatService = new ChatService(app, { defaultModels: [], agentDefaults: {} });
-    vi.spyOn(mockChatService, 'addTools');
+    vi.spyOn(mockChatService, "addTools");
     app.addServices(mockChatService);
 
     plugin.install(app, config as any);
@@ -73,13 +73,13 @@ describe('Audio Plugin', () => {
     expect(mockChatService.addTools).toBeDefined();
   });
 
-  it('should wait for AgentCommandService to add commands', () => {
+  it("should wait for AgentCommandService to add commands", () => {
     const config = {
       audio: AudioServiceConfigSchema.parse({
-        tmpDirectory: '/tmp',
+        tmpDirectory: "/tmp",
         providers: {},
         agentDefaults: {
-          provider: 'test-provider',
+          provider: "test-provider",
           transcribe: {},
           speech: {}
         }
@@ -97,9 +97,9 @@ describe('Audio Plugin', () => {
     expect(mockCommandService.addAgentCommands).toBeDefined();
   });
 
-  it('should handle empty configuration', () => {
+  it("should handle empty configuration", () => {
     plugin.install(app, { audio: {} } as any);
-    
+
     // Empty audio config should still register the service if audio key exists
     const services = app.getServices();
     // The service is registered if audio config is present (even if empty)
