@@ -1,9 +1,9 @@
+import deepClone from "@tokenring-ai/utility/object/deepClone";
 import fs from "node:fs";
 import type { Agent } from "@tokenring-ai/agent";
 import type { TranscriptionResult } from "@tokenring-ai/ai-client/client/AITranscriptionClient";
 import { SpeechModelRegistry, TranscriptionModelRegistry } from "@tokenring-ai/ai-client/ModelRegistry";
 import type { TokenRingService } from "@tokenring-ai/app/types";
-import deepMerge from "@tokenring-ai/utility/object/deepMerge";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
 import type { z } from "zod";
 import type { AudioProvider, AudioResult } from "./AudioProvider.ts";
@@ -22,7 +22,7 @@ export default class AudioService implements TokenRingService {
   constructor(readonly options: z.output<typeof AudioServiceConfigSchema>) {}
 
   attach(agent: Agent): void {
-    const agentConfig = deepMerge(this.options.agentDefaults, agent.getAgentConfigSlice("audio", AudioAgentConfigSchema));
+    const agentConfig = deepClone(this.options.agentDefaults, agent.getAgentConfigSlice("audio", AudioAgentConfigSchema));
     agent.initializeState(AudioState, agentConfig);
   }
 

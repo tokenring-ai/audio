@@ -1,7 +1,7 @@
 {
   "name": "@tokenring-ai/audio",
   "version": "0.2.0",
-  "description": "Core service for audio recording, playback, and speech-to-text processing.",
+  "description": "Voice recording, playback, and speech processing for the TokenRing AI ecosystem.",
   "dependencies": {
     "@tokenring-ai/ai-client": "workspace:*",
     "@tokenring-ai/app": "workspace:*",

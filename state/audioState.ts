@@ -1,5 +1,6 @@
 import type { Agent } from "@tokenring-ai/agent";
 import { AgentStateSlice } from "@tokenring-ai/agent/types";
+import deepClone from "@tokenring-ai/utility/object/deepClone";
 import markdownList from "@tokenring-ai/utility/string/markdownList";
 import { z } from "zod";
 import { type AudioServiceConfigSchema, AudioSpeechConfigSchema, AudioTranscriptionConfigSchema } from "../schema.ts";
@@ -18,15 +19,15 @@ export class AudioState extends AgentStateSlice<typeof serializationSchema> {
   constructor(readonly initialConfig: z.output<typeof AudioServiceConfigSchema>["agentDefaults"]) {
     super("AudioState", serializationSchema);
     this.activeProvider = initialConfig.provider ?? null;
-    this.transcribe = initialConfig.transcribe;
-    this.speech = initialConfig.speech;
+    this.transcribe = deepClone(initialConfig.transcribe);
+    this.speech = deepClone(initialConfig.speech);
   }
 
   transferStateFromParent(parent: Agent): void {
     const parentState = parent.getState(AudioState);
     this.activeProvider = parentState.activeProvider;
-    this.transcribe = parentState.transcribe;
-    this.speech = parentState.speech;
+    this.transcribe = deepClone(parentState.transcribe);
+    this.speech = deepClone(parentState.speech);
   }
 
   serialize(): z.output<typeof serializationSchema> {
