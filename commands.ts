@@ -8,6 +8,7 @@ import audioModelTtsSelect from "./commands/audio/model/tts/select.ts";
 import audioModelTtsSet from "./commands/audio/model/tts/set.ts";
 import play from "./commands/audio/play.ts";
 import record from "./commands/audio/record.ts";
+import reindex from "./commands/audio/reindex.ts";
 import speak from "./commands/audio/speak.ts";
 import transcribe from "./commands/audio/transcribe.ts";
 
@@ -16,6 +17,7 @@ export default [
   play,
   speak,
   transcribe,
+  reindex,
   audioModelTtsGet,
   audioModelTtsSet,
   audioModelTtsSelect,

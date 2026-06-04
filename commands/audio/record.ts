@@ -14,11 +14,11 @@ async function execute({ args, agent }: AgentCommandInputType<typeof inputSchema
   const audioService = agent.requireServiceByType(AudioService);
   const abortController = new AbortController();
   agent.infoMessage("Recording... Press Ctrl+C to stop");
-  const result = await audioService.requireAudioProvider(agent).record(abortController.signal, { format: args.format as string });
+  const result = await audioService.recordAudio({ format: args.format as string }, agent, abortController.signal);
   return `Recording saved: ${result.filePath}`;
 }
 
-const help = `Record audio from the microphone. Press Ctrl+C to stop recording.
+const help = `Record audio from the microphone into the media library. Press Ctrl+C to stop recording.
 
 ## Example
 

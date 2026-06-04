@@ -6,7 +6,7 @@ import AudioService from "../AudioService.ts";
 const name = "voice_record";
 const displayName = "Audio/record";
 
-async function execute({ sampleRate, channels, format, timeout }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
+async function execute({ sampleRate, channels, format, timeout, keywords }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const voiceService = agent.requireServiceByType(AudioService);
   agent.infoMessage(`[${name}] Starting recording...`);
 
@@ -15,22 +15,19 @@ async function execute({ sampleRate, channels, format, timeout }: z.output<typeo
     setTimeout(() => abortController.abort(), timeout);
   }
 
-  const result = await voiceService.requireAudioProvider(agent).record(abortController.signal, {
-    sampleRate,
-    channels,
-    format,
-  });
+  const result = await voiceService.recordAudio({ sampleRate, channels, format, keywords }, agent, abortController.signal);
 
-  return `Recorded audio to: ${result.filePath}`;
+  return JSON.stringify({ path: result.filePath, fileName: result.fileName, mediaType: result.mediaType });
 }
 
-const description = "Record audio using the active voice provider";
+const description = "Record audio using the active voice provider and save it to the media library";
 
 const inputSchema = z.object({
   sampleRate: z.number().exactOptional().describe("Sample rate for recording"),
   channels: z.number().exactOptional().describe("Number of audio channels"),
   format: z.string().exactOptional().describe("Audio format"),
   timeout: z.number().exactOptional().describe("Recording timeout in milliseconds"),
+  keywords: z.array(z.string()).describe("Keywords to add to media library metadata").exactOptional(),
 });
 
 export default {

@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import type Agent from "@tokenring-ai/agent/Agent";
 import type { TokenRingToolDefinition, TokenRingToolResult } from "@tokenring-ai/chat/schema";
 import { z } from "zod";
@@ -13,6 +11,7 @@ async function execute(
     text,
     //voice,
     speed,
+    keywords,
   }: z.output<typeof inputSchema>,
   agent: Agent,
 ): Promise<TokenRingToolResult> {
@@ -23,29 +22,28 @@ async function execute(
   }
 
   agent.infoMessage(`[${name}] Converting text to speech...`);
-  const result = await audioService.convertTextToSpeech(
+  const result = await audioService.convertTextToSpeechFile(
     text,
     {
       //voice,
       speed,
+      keywords,
     },
     agent,
   );
 
-  const tmpFile = path.join(audioService.options.tmpDirectory, `speech-${Date.now()}.mp3`);
-  fs.writeFileSync(tmpFile, result.data);
+  await audioService.requireAudioProvider(agent).playback(result.filePath);
 
-  await audioService.requireAudioProvider(agent).playback(tmpFile);
-
-  return `Playback succeeded`;
+  return JSON.stringify({ path: result.filePath, fileName: result.fileName, mediaType: result.mediaType });
 }
 
-const description = "Convert text to speech using the active voice provider";
+const description = "Convert text to speech, save it to the media library, and play it using the active audio provider";
 
 const inputSchema = z.object({
   text: z.string().min(1).describe("Text to convert to speech"),
   //voice: z.string().exactOptional().describe("Voice ID"),
   speed: z.number().exactOptional().describe("Speech speed"),
+  keywords: z.array(z.string()).describe("Keywords to add to media library metadata").exactOptional(),
 });
 
 export default {

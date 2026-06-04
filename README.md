@@ -4,7 +4,9 @@
 
 Voice recording, playback, and speech processing for the TokenRing AI ecosystem. This package provides audio operations
 through integration with the AI client services for transcription and speech generation. It supports type-safe
-configuration with Zod schemas and integrates with the TokenRing agent framework.
+configuration with Zod schemas and integrates with the TokenRing agent framework. Recordings and generated speech are
+stored through `@tokenring-ai/media-library`, sharing the same media directory, index, search, and static serving path
+as generated images and videos.
 
 The package serves as a bridge between concrete audio providers (like `@tokenring-ai/linux-audio`) and the AI client's
 transcription/speech models, enabling:
@@ -12,6 +14,7 @@ transcription/speech models, enabling:
 - **Recording and playback** through platform-specific audio providers
 - **Speech-to-text (STT)** conversion using transcription model registries
 - **Text-to-speech (TTS)** generation using speech model registries
+- **Media library storage and indexing** for recordings and generated speech
 - **State management** for audio configuration persistence across agent sessions
 - **Plugin architecture** for automatic service, tool, and command registration
 
@@ -39,6 +42,7 @@ bun install @tokenring-ai/audio
 - `@tokenring-ai/app` - Base application framework
 - `@tokenring-ai/chat` - Chat service for tool registration
 - `@tokenring-ai/agent` - Agent framework for commands and state
+- `@tokenring-ai/media-library` - Shared media storage, indexing, and search
 - `@tokenring-ai/utility` - Utility functions including KeyedRegistry
 - `zod` - Schema validation
 
@@ -79,7 +83,7 @@ const audioService = new AudioService({
 | Property           | Type                                        | Description                                           |
 |--------------------|---------------------------------------------|-------------------------------------------------------|
 | `name`             | `string`                                    | Service name: `"AudioService"`                        |
-| `description`      | `string`                                    | Service description: `"Service for Audio Operations"` |
+| `description`      | `string`                                    | Service description                                  |
 | `options`          | `z.output<typeof AudioServiceConfigSchema>` | Service configuration options                         |
 
 #### Methods
@@ -91,8 +95,11 @@ const audioService = new AudioService({
 | `attach(agent: Agent): void`                                                                                | Initialize audio state for an agent with default configuration |
 | `requireAudioProvider(agent: Agent): AudioProvider`                                                         | Get the active audio provider for an agent (throws if none)    |
 | `setActiveProvider(name: string, agent: Agent): void`                                                       | Set the active audio provider for an agent                     |
-| `convertAudioToText(audioFile, { language?: string }, agent)` | Transcribe audio to text using the configured STT model        |
+| `recordAudio(options, agent, abortSignal)`                                                                  | Record audio and import it into the media library              |
+| `convertAudioToText(audioFile, { language?: string }, agent)`                                               | Transcribe audio to text using the configured STT model        |
 | `convertTextToSpeech(text: string, { voice?: string, speed?: number }, agent: Agent): Promise<AudioResult>` | Convert text to speech using the configured TTS model          |
+| `convertTextToSpeechFile(text, options, agent)`                                                             | Convert text to speech and save it to the media library        |
+| `reindex(agent)`                                                                                            | Rebuild audio entries in the media library index               |
 
 #### AudioService Error Handling
 
@@ -119,6 +126,7 @@ export interface RecordingOptions {
   channels?: number;     // Number of audio channels
   format?: string;       // Audio format (e.g., 'wav', 'mp3')
   timeout?: number;      // Recording timeout in milliseconds (used in tool, not in interface)
+  keywords?: string[];   // Media library keywords
 }
 ```
 
@@ -127,6 +135,10 @@ export interface RecordingOptions {
 ```typescript
 export interface RecordingResult {
   filePath: string;      // Path to the recorded audio file
+  mediaType?: string;    // MIME type, if known
+  sampleRate?: number;   // Sample rate, if known
+  channels?: number;     // Channel count, if known
+  duration?: number;     // Duration in seconds, if known
 }
 ```
 
@@ -135,6 +147,7 @@ export interface RecordingResult {
 ```typescript
 export interface AudioResult {
   data: any;             // Audio data (typically Uint8Array or Buffer)
+  mediaType?: string;    // MIME type, if known
 }
 ```
 
@@ -187,6 +200,7 @@ The package provides the `/audio` command suite for interactive audio operations
 | `/audio play <file>`                 | Play audio file through speakers              |
 | `/audio speak <text> [options]`      | Convert text to speech and play               |
 | `/audio transcribe <file> [options]` | Transcribe audio file to text                 |
+| `/audio reindex`                     | Reindex audio files in the media library      |
 | `/audio model tts ...`               | Manage TTS (text-to-speech) models            |
 | `/audio model stt ...`               | Manage STT (speech-to-text) models            |
 
@@ -196,7 +210,7 @@ The package provides the `/audio` command suite for interactive audio operations
 /audio record [--format <fmt>]
 ```
 
-Records audio from the microphone. Press Ctrl+C to stop recording.
+Records audio from the microphone into the media library. Press Ctrl+C to stop recording.
 
 **Options:**
 
@@ -209,7 +223,7 @@ Records audio from the microphone. Press Ctrl+C to stop recording.
 /audio record --format wav
 ```
 
-**Output:** `Recording saved: <filepath>`
+**Output:** `Recording saved: <media-library-filepath>`
 
 ### Play Command
 
@@ -217,7 +231,7 @@ Records audio from the microphone. Press Ctrl+C to stop recording.
 /audio play <file>
 ```
 
-Plays an audio file through the speakers.
+Plays an audio file through the speakers. Bare filenames are resolved relative to the media library directory.
 
 **Arguments:**
 
@@ -239,7 +253,7 @@ Plays an audio file through the speakers.
 /audio speak <text> [--voice <id>] [--speed <n>]
 ```
 
-Converts text to speech and plays it through the speakers.
+Converts text to speech, saves it to the media library, and plays it through the speakers.
 
 **Arguments:**
 

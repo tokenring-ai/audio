@@ -7,6 +7,8 @@
     "@tokenring-ai/app": "workspace:*",
     "@tokenring-ai/chat": "workspace:*",
     "@tokenring-ai/agent": "workspace:*",
+    "@tokenring-ai/media-library": "workspace:*",
+    "@tokenring-ai/rpc": "workspace:*",
     "@tokenring-ai/utility": "workspace:*",
     "zod": "^4.3.6"
   },

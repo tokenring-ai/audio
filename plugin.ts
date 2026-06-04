@@ -1,11 +1,13 @@
 import { AgentCommandService } from "@tokenring-ai/agent";
 import type { TokenRingPlugin } from "@tokenring-ai/app";
 import { ChatService } from "@tokenring-ai/chat";
+import { RpcService } from "@tokenring-ai/rpc";
 import { z } from "zod";
 import AudioService from "./AudioService.ts";
 import agentCommands from "./commands.ts";
 import { AudioServiceConfigSchema } from "./index.ts";
 import packageJSON from "./package.json" with { type: "json" };
+import audioRPC from "./rpc/audio.ts";
 import tools from "./tools.ts";
 
 const packageConfigSchema = z.object({
@@ -22,6 +24,9 @@ export default {
     app.addServices(new AudioService(config.audio));
     app.waitForService(ChatService, chatService => chatService.addTools(...tools));
     app.waitForService(AgentCommandService, agentCommandService => agentCommandService.addAgentCommands(agentCommands));
+    app.waitForService(RpcService, rpcService => {
+      rpcService.registerEndpoint(audioRPC);
+    });
   },
   config: packageConfigSchema,
 } satisfies TokenRingPlugin<typeof packageConfigSchema>;

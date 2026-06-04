@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentCommand } from "@tokenring-ai/agent/types";
 import AudioService from "../../AudioService.ts";
 
@@ -23,7 +21,7 @@ const inputSchema = {
 
 async function execute({ remainder, args, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
-  const result = await audioService.convertTextToSpeech(
+  const result = await audioService.convertTextToSpeechFile(
     remainder,
     {
       voice: args.voice as string,
@@ -31,13 +29,11 @@ async function execute({ remainder, args, agent }: AgentCommandInputType<typeof 
     },
     agent,
   );
-  const tmpFile = path.join(audioService.options.tmpDirectory, `speech-${Date.now()}.mp3`);
-  fs.writeFileSync(tmpFile, result.data);
-  await audioService.requireAudioProvider(agent).playback(tmpFile);
-  return `Speech generated: ${tmpFile}`;
+  await audioService.requireAudioProvider(agent).playback(result.filePath);
+  return `Speech generated: ${result.filePath}`;
 }
 
-const help = `Convert text to speech and play it through the speakers.
+const help = `Convert text to speech, save it to the media library, and play it through the speakers.
 
 ## Example
 
