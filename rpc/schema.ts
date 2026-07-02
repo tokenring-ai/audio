@@ -1,29 +1,11 @@
 import { AgentNotFoundSchema } from "@tokenring-ai/agent/schema";
-import { MediaLibraryEntrySchema } from "@tokenring-ai/media-library/schema";
 import type { RPCSchema } from "@tokenring-ai/rpc/types";
 import { z } from "zod";
-
-export const AudioIndexEntrySchema = MediaLibraryEntrySchema.extend({
-  kind: z.literal("audio"),
-});
-
-export type AudioIndexEntry = z.output<typeof AudioIndexEntrySchema>;
 
 export default {
   name: "Audio RPC",
   path: "/rpc/audio",
   methods: {
-    getAudios: {
-      type: "query",
-      input: z.object({
-        search: z.string().exactOptional(),
-        limit: z.number().int().positive().default(200).exactOptional(),
-      }),
-      result: z.object({
-        audios: z.array(AudioIndexEntrySchema),
-        count: z.number(),
-      }),
-    },
     generateSpeech: {
       type: "mutation",
       input: z.object({
