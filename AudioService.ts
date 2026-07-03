@@ -219,6 +219,10 @@ export default class AudioService implements TokenRingService {
     agent: Agent,
   ): Promise<{ fileName: string; filePath: string; mediaType: string; buffer: Buffer }> {
     const result = await this.convertTextToSpeech(text, options, agent);
-    return this.saveAudioBuffer(Buffer.from(result.data), { mediaType: result.mediaType ?? "audio/mpeg", extension: "mp3", prompt: text, keywords: options.keywords }, agent);
+    return this.saveAudioBuffer(
+      Buffer.from(result.data),
+      { mediaType: result.mediaType ?? "audio/mpeg", extension: "mp3", prompt: text, keywords: options.keywords },
+      agent,
+    );
   }
 }

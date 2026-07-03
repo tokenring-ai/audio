@@ -1,4 +1,5 @@
-import { AgentNotFoundSchema } from "@tokenring-ai/agent/schema";
+import { AgentNotFoundSchema } from "@tokenring-ai/rpc/types";
+import { SuccessSchema } from "@tokenring-ai/rpc/types";
 import type { RPCSchema } from "@tokenring-ai/rpc/types";
 import { z } from "zod";
 
@@ -17,8 +18,7 @@ export default {
         keywords: z.array(z.string()).exactOptional(),
       }),
       result: z.discriminatedUnion("status", [
-        z.object({
-          status: z.literal("success"),
+        SuccessSchema.extend({
           filename: z.string(),
           mimeType: z.string(),
           message: z.string(),
@@ -34,8 +34,7 @@ export default {
         language: z.string().exactOptional(),
       }),
       result: z.discriminatedUnion("status", [
-        z.object({
-          status: z.literal("success"),
+        SuccessSchema.extend({
           text: z.string(),
         }),
         AgentNotFoundSchema,

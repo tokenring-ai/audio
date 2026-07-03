@@ -39,9 +39,9 @@ async function execute({ agent }: AgentCommandInputType<typeof inputSchema>): Pr
     },
   });
 
-  if (selection !== null) {
+  if (selection?.[0]) {
     agent.mutateState(AudioState, state => {
-      state.speech.model = selection[0];
+      state.speech.model = selection[0]!;
     });
     return `TTS model set to ${selection[0]}`;
   }

@@ -39,9 +39,9 @@ async function execute({ agent }: AgentCommandInputType<typeof inputSchema>): Pr
     },
   });
 
-  if (selection !== null && selection.length > 0) {
+  if (selection?.[0]) {
     agent.mutateState(AudioState, state => {
-      state.transcribe.model = selection[0];
+      state.transcribe.model = selection[0]!;
     });
     return `STT model set to ${selection[0]}`;
   }

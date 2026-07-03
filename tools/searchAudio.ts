@@ -6,7 +6,7 @@ import { z } from "zod";
 const name = "audio_search";
 const displayName = "Audio/search";
 
-async function execute({ query, limit  }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
+async function execute({ query, limit }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const mediaLibrary = agent.requireServiceByType(MediaLibraryService);
   const results = await mediaLibrary.search(query, { kind: "audio", limit }, agent);
 
