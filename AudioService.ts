@@ -1,12 +1,13 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { Agent } from "@tokenring-ai/agent";
 import type { TranscriptionResult } from "@tokenring-ai/ai-client/client/AITranscriptionClient";
 import { SpeechModelRegistry, TranscriptionModelRegistry } from "@tokenring-ai/ai-client/ModelRegistry";
 import type { TokenRingService } from "@tokenring-ai/app/types";
+import { ConfigurationError } from "@tokenring-ai/app/types";
 import MediaLibraryService from "@tokenring-ai/media-library/MediaLibraryService";
 import deepClone from "@tokenring-ai/utility/object/deepClone";
 import KeyedRegistry from "@tokenring-ai/utility/registry/KeyedRegistry";
-import fs from "node:fs";
-import path from "node:path";
 import type { z } from "zod";
 import type { AudioProvider, AudioResult } from "./AudioProvider.ts";
 import { AudioAgentConfigSchema, type AudioServiceConfigSchema } from "./schema.ts";
@@ -54,7 +55,7 @@ export default class AudioService implements TokenRingService {
 
   requireAudioProvider(agent: Agent): AudioProvider {
     const providerName = agent.getState(AudioState).activeProvider;
-    if (!providerName) throw new Error("No audio provider has been enabled.");
+    if (!providerName) throw new ConfigurationError(this.name, "No audio provider has been enabled.");
     return this.providerRegistry.require(providerName);
   }
 
@@ -177,7 +178,7 @@ export default class AudioService implements TokenRingService {
     );
   }
 
-  async convertAudioToText(audioFile: any, { language }: { language?: string | undefined }, agent: Agent): Promise<TranscriptionResult> {
+  async convertAudioToText(audioFile: string | Buffer, agent: Agent): Promise<TranscriptionResult> {
     const transcriptionModelRegistry = agent.requireServiceByType(TranscriptionModelRegistry);
     const { transcribe } = agent.getState(AudioState);
     const client = transcriptionModelRegistry.getClient(transcribe.model);
@@ -187,8 +188,6 @@ export default class AudioService implements TokenRingService {
     const [text] = await client.transcribe(
       {
         audio: audioBuffer,
-        language: language ?? transcribe.language,
-        prompt: transcribe.prompt,
       },
       agent,
     );

@@ -37,7 +37,7 @@ export default createRPCEndpoint(AudioRpcSchema, {
     }
 
     const audioService = app.requireService(AudioService);
-    const result = await audioService.convertAudioToText(args.filename, { language: args.language }, agent);
+    const result = await audioService.convertAudioToText(args.filename, agent);
 
     return {
       status: "success" as const,

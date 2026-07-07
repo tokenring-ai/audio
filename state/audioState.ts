@@ -18,7 +18,7 @@ export class AudioState extends AgentStateSlice<typeof serializationSchema> {
 
   constructor(readonly initialConfig: z.output<typeof AudioServiceConfigSchema>["agentDefaults"]) {
     super("AudioState", serializationSchema);
-    this.activeProvider = initialConfig.provider ?? null;
+    this.activeProvider = initialConfig.provider;
     this.transcribe = deepClone(initialConfig.transcribe);
     this.speech = deepClone(initialConfig.speech);
   }
@@ -47,12 +47,12 @@ export class AudioState extends AgentStateSlice<typeof serializationSchema> {
   show(): string {
     return `Active Provider: ${this.activeProvider}
 ${markdownList([
-  `Transcription Model: ${this.transcribe?.model ?? ""}`,
-  `Transcription Prompt: ${this.transcribe?.prompt ?? ""}`,
-  `Transcription Language: ${this.transcribe?.language ?? ""}`,
-  `Speech Model: ${this.speech?.model ?? ""}`,
-  `Speech Voice: ${this.speech?.voice ?? ""}`,
-  `Speech Speed: ${this.speech?.speed ?? ""}`,
+  `Transcription Model: ${this.transcribe.model}`,
+  `Transcription Prompt: ${this.transcribe.prompt}`,
+  `Transcription Language: ${this.transcribe.language}`,
+  `Speech Model: ${this.speech.model}`,
+  `Speech Voice: ${this.speech.voice}`,
+  `Speech Speed: ${this.speech.speed}`,
 ])}`;
   }
 }

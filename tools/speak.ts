@@ -1,5 +1,6 @@
 import type Agent from "@tokenring-ai/agent/Agent";
 import type { TokenRingToolDefinition, TokenRingToolResult } from "@tokenring-ai/chat/schema";
+import { ToolCallError } from "@tokenring-ai/chat/util/tokenRingTool";
 import { z } from "zod";
 import AudioService from "../AudioService.ts";
 
@@ -18,7 +19,7 @@ async function execute(
   const audioService = agent.requireServiceByType(AudioService);
 
   if (!text) {
-    throw new Error(`[${name}] text is required`);
+    throw new ToolCallError(name, `text is required`);
   }
 
   agent.infoMessage(`[${name}] Converting text to speech...`);

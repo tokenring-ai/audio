@@ -3,12 +3,6 @@ import type { AgentCommandInputSchema, AgentCommandInputType, TokenRingAgentComm
 import AudioService from "../../AudioService.ts";
 
 const inputSchema = {
-  args: {
-    language: {
-      type: "string",
-      description: "Language code",
-    },
-  },
   positionals: [
     {
       name: "file",
@@ -18,11 +12,11 @@ const inputSchema = {
   ],
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({ positionals, args, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+async function execute({ positionals, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const audioService = agent.requireServiceByType(AudioService);
   const file = positionals.file;
   if (!file) throw new CommandFailedError("Usage: /audio transcribe <filename> [flags]");
-  const result = await audioService.convertAudioToText(file, { language: args.language as string }, agent);
+  const result = await audioService.convertAudioToText(file, agent);
   return `Transcription: ${result.text}`;
 }
 

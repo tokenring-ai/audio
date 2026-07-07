@@ -6,14 +6,11 @@ import AudioService from "../AudioService.ts";
 const name = "voice_transcribe";
 const displayName = "Audio/transcribe";
 
-async function execute({ audioFile, language }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
+async function execute({ audioFile }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const voiceService = agent.requireServiceByType(AudioService);
   agent.infoMessage(`[${name}] Transcribing audio...`);
   const result = await voiceService.convertAudioToText(
     audioFile,
-    {
-      language,
-    },
     agent,
   );
   return `Transcription Results:\n${result.text}`;
@@ -23,7 +20,6 @@ const description = "Transcribe audio using the active voice provider";
 
 const inputSchema = z.object({
   audioFile: z.any().describe("Audio file to transcribe"),
-  language: z.string().describe("Language to transcribe the audio to"),
 });
 
 export default {
