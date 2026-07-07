@@ -9,10 +9,7 @@ const displayName = "Audio/transcribe";
 async function execute({ audioFile }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const voiceService = agent.requireServiceByType(AudioService);
   agent.infoMessage(`[${name}] Transcribing audio...`);
-  const result = await voiceService.convertAudioToText(
-    audioFile,
-    agent,
-  );
+  const result = await voiceService.convertAudioToText(audioFile, agent);
   return `Transcription Results:\n${result.text}`;
 }
 

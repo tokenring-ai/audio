@@ -13,13 +13,29 @@ import type { AudioProvider, AudioResult } from "./AudioProvider.ts";
 import { AudioAgentConfigSchema, type AudioServiceConfigSchema } from "./schema.ts";
 import { AudioState } from "./state/audioState.ts";
 
-function extensionFromPath(filePath: string, fallback = "mp3"): string {
+export const AUDIO_FILE_EXTENSIONS = {
+  wav: true,
+  m4a: true,
+  ogg: true,
+  oga: true,
+  flac: true,
+  aac: true,
+  mp3: true,
+};
+
+export type AudioFileExtension = keyof typeof AUDIO_FILE_EXTENSIONS;
+
+function extensionFromPath(filePath: string): AudioFileExtension {
   const extension = path.extname(filePath).slice(1).toLowerCase();
-  return extension || fallback;
+  if (extension in AUDIO_FILE_EXTENSIONS) {
+    return extension as AudioFileExtension;
+  }
+
+  throw new Error(`Unhandled audio file extension: ${extension}`);
 }
 
-function audioMediaTypeFromExtension(extension: string): string {
-  switch (extension.toLowerCase()) {
+function audioMediaTypeFromExtension(extension: AudioFileExtension): string {
+  switch (extension) {
     case "wav":
       return "audio/wav";
     case "m4a":
@@ -32,8 +48,11 @@ function audioMediaTypeFromExtension(extension: string): string {
     case "aac":
       return "audio/aac";
     case "mp3":
-    default:
       return "audio/mpeg";
+    default: {
+      const exhaustive: any = extension satisfies never;
+      throw new Error(`Unhandled audio extension: ${exhaustive}`);
+    }
   }
 }
 
