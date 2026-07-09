@@ -38,8 +38,8 @@ describe("Audio Integration Tests", () => {
     };
 
     // Create proper mock registries
-    mockTranscriptionRegistry = new TranscriptionModelRegistry(app);
-    mockSpeechRegistry = new SpeechModelRegistry(app);
+    mockTranscriptionRegistry = new TranscriptionModelRegistry();
+    mockSpeechRegistry = new SpeechModelRegistry();
 
     vi.spyOn(mockTranscriptionRegistry, "getClient").mockResolvedValue(mockTranscriptionModel);
     vi.spyOn(mockSpeechRegistry, "getClient").mockResolvedValue(mockSpeechModel);
@@ -83,7 +83,6 @@ describe("Audio Integration Tests", () => {
     // Transcribe the audio buffer
     const transcription = await audioService.convertAudioToText(
       audioBuffer,
-      { language: "en" },
       agent
     );
 
@@ -139,10 +138,21 @@ describe("Audio Integration Tests", () => {
 
     // Mock required services - these need to be registered BEFORE plugin.install
     // The plugin uses waitForService which calls the callback immediately if service exists
-    const mockChatService = new ChatService(pluginApp, { defaultModels: [], agentDefaults: {} });
+    const mockChatService = new ChatService(pluginApp, {
+      defaultModels: [],
+      defaultTranscriptionModels: [],
+      agentDefaults: {
+        enabledTools: [],
+        hiddenTools: [],
+        maxSteps: 0,
+        allowRemoteAttachments: true,
+        compaction: { policy: "ask", compactionThreshold: 0.5, background: false, focus: "summary" },
+        context: { initial: [], followUp: [] },
+      },
+    });
     const addToolsSpy = vi.spyOn(mockChatService, "addTools");
 
-    const mockCommandService = new AgentCommandService(pluginApp, {} as any);
+    const mockCommandService = new AgentCommandService(pluginApp);
     const addCommandsSpy = vi.spyOn(mockCommandService, "addAgentCommands");
 
     pluginApp.addServices(mockChatService);
@@ -252,7 +262,6 @@ describe("Audio Integration Tests", () => {
       errorAudioService.requireAudioProvider(errorAgent);
     }).toThrow();
 
-    errorAgent.shutdown?.();
     errorApp.shutdown();
   });
 });

@@ -35,8 +35,8 @@ describe("Audio Tools", () => {
     };
 
     // Create proper mock registries
-    mockTranscriptionRegistry = new TranscriptionModelRegistry(app);
-    mockSpeechRegistry = new SpeechModelRegistry(app);
+    mockTranscriptionRegistry = new TranscriptionModelRegistry();
+    mockSpeechRegistry = new SpeechModelRegistry();
 
     vi.spyOn(mockTranscriptionRegistry, "getClient").mockResolvedValue(mockTranscriptionModel);
     vi.spyOn(mockSpeechRegistry, "getClient").mockResolvedValue(mockSpeechModel);
@@ -79,8 +79,8 @@ describe("Audio Tools", () => {
     it("should record audio with default options", async () => {
       const result = await recordTool.execute({}, agent);
 
-      expect(result.type).toBe("json");
-      expect(result.data.filePath).toBe("/tmp/test.wav");
+      expect(typeof result).toBe("string");
+      expect(JSON.parse(result as string).path).toBe("/tmp/test.wav");
       expect(mockProvider.record).toHaveBeenCalled();
     });
 
@@ -128,7 +128,7 @@ describe("Audio Tools", () => {
     it("should transcribe audio file", async () => {
       // Pass a Buffer instead of a file path
       const audioBuffer = Buffer.from("fake audio data");
-      const result = await transcribeTool.execute({ audioFile: audioBuffer, language: "en" }, agent);
+      const result = await transcribeTool.execute({ audioFile: audioBuffer }, agent);
 
       expect(result).toBe("Hello world");
       expect(mockTranscriptionModel.transcribe).toHaveBeenCalled();
@@ -136,10 +136,10 @@ describe("Audio Tools", () => {
 
     it("should transcribe with custom language", async () => {
       const audioBuffer = Buffer.from("fake audio data");
-      await transcribeTool.execute({ audioFile: audioBuffer, language: "de" }, agent);
+      await transcribeTool.execute({ audioFile: audioBuffer }, agent);
 
       expect(mockTranscriptionModel.transcribe).toHaveBeenCalledWith(
-        expect.objectContaining({ language: "de" }),
+        expect.objectContaining({ audio: audioBuffer }),
         agent
       );
     });
@@ -148,7 +148,7 @@ describe("Audio Tools", () => {
       const audioBuffer = Buffer.from("fake audio data");
       const infoSpy = vi.spyOn(agent, "infoMessage");
 
-      await transcribeTool.execute({ audioFile: audioBuffer, language: "en" }, agent);
+      await transcribeTool.execute({ audioFile: audioBuffer }, agent);
 
       expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining("[voice_transcribe]"));
     });
@@ -202,8 +202,7 @@ describe("Audio Tools", () => {
     it("should play audio file", async () => {
       const result = await playbackTool.execute({ filename: "/tmp/test.wav" }, agent);
 
-      expect(result.type).toBe("json");
-      expect(result.data.filePath).toBe("/tmp/test.wav");
+      expect(result).toBe("Played audio file: /tmp/test.wav");
       expect(mockProvider.playback).toHaveBeenCalledWith("/tmp/test.wav");
     });
 

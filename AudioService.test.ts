@@ -48,8 +48,8 @@ describe("AudioService", () => {
     };
 
     // Create proper mock registries that can be found by type
-    const mockTranscriptionRegistry = new TranscriptionModelRegistry(app);
-    const mockSpeechRegistry = new SpeechModelRegistry(app);
+    const mockTranscriptionRegistry = new TranscriptionModelRegistry();
+    const mockSpeechRegistry = new SpeechModelRegistry();
 
     // Mock the getClient methods
     vi.spyOn(mockTranscriptionRegistry, "getClient").mockResolvedValue(mockTranscriptionModel);
@@ -83,7 +83,7 @@ describe("AudioService", () => {
     const providers = audioService.getAvailableProviders();
     expect(providers).toContain("test-provider");
 
-    const retrieved = audioService.providerRegistry.get("test-provider");
+    const retrieved = audioService.requireAudioProvider(mockAgent);
     expect(retrieved).toBe(mockProvider);
   });
 
@@ -143,7 +143,7 @@ describe("AudioService", () => {
 
     // Pass a Buffer instead of a file path
     const audioBuffer = Buffer.from("fake audio data");
-    const result = await audioService.convertAudioToText(audioBuffer, { language: "en" }, mockAgent);
+    const result = await audioService.convertAudioToText(audioBuffer, mockAgent);
 
     expect(result.text).toBe("Hello world");
     expect(mockTranscriptionModel.transcribe).toHaveBeenCalled();
@@ -181,11 +181,11 @@ describe("AudioService", () => {
 
     // Pass a Buffer instead of a file path
     const audioBuffer = Buffer.from("fake audio data");
-    await audioService.convertAudioToText(audioBuffer, {}, mockAgent);
+    await audioService.convertAudioToText(audioBuffer, mockAgent);
 
     expect(mockTranscriptionModel.transcribe).toHaveBeenCalledWith(
       expect.objectContaining({
-        language: "en" // Default from config
+        audio: audioBuffer
       }),
       mockAgent
     );

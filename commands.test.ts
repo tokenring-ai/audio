@@ -42,8 +42,8 @@ describe("Audio Commands", () => {
     };
 
     // Create proper mock registries
-    mockTranscriptionRegistry = new TranscriptionModelRegistry(app);
-    mockSpeechRegistry = new SpeechModelRegistry(app);
+    mockTranscriptionRegistry = new TranscriptionModelRegistry();
+    mockSpeechRegistry = new SpeechModelRegistry();
 
     vi.spyOn(mockTranscriptionRegistry, "getClient").mockResolvedValue(mockTranscriptionModel);
     vi.spyOn(mockSpeechRegistry, "getClient").mockResolvedValue(mockSpeechModel);

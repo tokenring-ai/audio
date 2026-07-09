@@ -63,7 +63,18 @@ describe("Audio Plugin", () => {
     };
 
     // Mock ChatService with spy
-    const mockChatService = new ChatService(app, { defaultModels: [], agentDefaults: {} });
+    const mockChatService = new ChatService(app, {
+      defaultModels: [],
+      defaultTranscriptionModels: [],
+      agentDefaults: {
+        enabledTools: [],
+        hiddenTools: [],
+        maxSteps: 0,
+        allowRemoteAttachments: true,
+        compaction: { policy: "ask", compactionThreshold: 0.5, background: false, focus: "summary" },
+        context: { initial: [], followUp: [] },
+      },
+    });
     vi.spyOn(mockChatService, "addTools");
     app.addServices(mockChatService);
 
