@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent.test";
+import { afterEach,beforeEach,describe,expect,it,mock } from "bun:test";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp.test";
 import AudioService from "./AudioService.ts";
 import { AudioServiceConfigSchema } from "./schema.ts";
@@ -21,14 +21,14 @@ describe("AudioState", () => {
         transcribe: {
           model: "whisper-1",
           prompt: "Convert to English",
-          language: "en",
+          language: "en"
         },
         speech: {
           model: "OpenAI:tts-1",
           voice: "alloy",
-          speed: 1.0,
-        },
-      },
+          speed: 1.0
+        }
+      }
     });
 
     audioService = new AudioService(config);
@@ -63,13 +63,13 @@ describe("AudioState", () => {
       transcribe: {
         model: "whisper-1",
         prompt: "Convert to English",
-        language: "en",
+        language: "en"
       },
       speech: {
         model: "OpenAI:tts-1",
         voice: "alloy",
-        speed: 1.0,
-      },
+        speed: 1.0
+      }
     });
   });
 
@@ -81,13 +81,13 @@ describe("AudioState", () => {
       transcribe: {
         model: "new-whisper",
         prompt: "New prompt",
-        language: "de",
+        language: "de"
       },
       speech: {
         model: "new-tts",
         voice: "new-voice",
-        speed: 1.5,
-      },
+        speed: 1.5
+      }
     };
 
     state.deserialize(newData);
@@ -102,7 +102,7 @@ describe("AudioState", () => {
   });
 
   it("should mutate state using agent method", () => {
-    agent.mutateState(AudioState, state => {
+    agent.mutateState(AudioState, (state) => {
       state.transcribe.model = "mutated-model";
     });
 
@@ -115,7 +115,7 @@ describe("AudioState", () => {
     const parentAgent = createTestingAgent(app);
     audioService.attach(parentAgent);
 
-    parentAgent.mutateState(AudioState, state => {
+    parentAgent.mutateState(AudioState, (state) => {
       state.activeProvider = "parent-provider";
       state.transcribe.model = "parent-model";
     });
@@ -156,8 +156,8 @@ describe("AudioState", () => {
       tmpDirectory: "/tmp",
       providers: {},
       agentDefaults: {
-        provider: "test-provider",
-      },
+        provider: "test-provider"
+      }
     });
 
     const newAudioService = new AudioService(config);

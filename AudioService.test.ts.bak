@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent.test";
+import { afterEach,beforeEach,describe,expect,it,mock,spyOn } from "bun:test";
 import { SpeechModelRegistry, TranscriptionModelRegistry } from "@tokenring-ai/ai-client/ModelRegistry";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp.test";
 import AudioService from "./AudioService.ts";
@@ -25,26 +25,26 @@ describe("AudioService", () => {
         transcribe: {
           model: "whisper-1",
           prompt: "Convert to English",
-          language: "en",
+          language: "en"
         },
         speech: {
           model: "OpenAI:tts-1",
           voice: "alloy",
-          speed: 1.0,
-        },
-      },
+          speed: 1.0
+        }
+      }
     });
 
     audioService = new AudioService(config);
 
     // Mock transcription model
     mockTranscriptionModel = {
-      transcribe: mock().mockResolvedValue(["Hello world"]),
+      transcribe: mock().mockResolvedValue(["Hello world"])
     };
 
     // Mock speech model
     mockSpeechModel = {
-      generateSpeech: mock().mockResolvedValue([Buffer.from("test audio data")]),
+      generateSpeech: mock().mockResolvedValue([Buffer.from("test audio data")])
     };
 
     // Create proper mock registries that can be found by type
@@ -52,8 +52,8 @@ describe("AudioService", () => {
     const mockSpeechRegistry = new SpeechModelRegistry();
 
     // Mock the getClient methods
-    spyOn(mockTranscriptionRegistry, "getClient").mockReturnValue(mockTranscriptionModel);
-    spyOn(mockSpeechRegistry, "getClient").mockReturnValue(mockSpeechModel);
+    spyOn(mockTranscriptionRegistry, "getClient").mockResolvedValue(mockTranscriptionModel);
+    spyOn(mockSpeechRegistry, "getClient").mockResolvedValue(mockSpeechModel);
 
     app.addServices(mockTranscriptionRegistry);
     app.addServices(mockSpeechRegistry);
@@ -68,13 +68,13 @@ describe("AudioService", () => {
 
   it("should have correct name and description", () => {
     expect(audioService.name).toBe("AudioService");
-    expect(audioService.description).toBe("Audio recording, playback, speech, and transcription backed by the shared media library");
+    expect(audioService.description).toBe("Service for Audio Operations");
   });
 
   it("should register and retrieve providers", () => {
     const mockProvider = {
       record: mock(),
-      playback: mock(),
+      playback: mock()
     };
 
     audioService.registerProvider("test-provider", mockProvider);
@@ -89,7 +89,7 @@ describe("AudioService", () => {
   it("should set active provider in agent state", () => {
     const mockProvider = {
       record: mock(),
-      playback: mock(),
+      playback: mock()
     };
 
     audioService.registerProvider("new-provider", mockProvider);
@@ -101,7 +101,7 @@ describe("AudioService", () => {
   it("should require audio provider from agent state", () => {
     const mockProvider = {
       record: mock(),
-      playback: mock(),
+      playback: mock()
     };
 
     audioService.registerProvider("test-provider", mockProvider);
@@ -116,7 +116,8 @@ describe("AudioService", () => {
     const agentWithoutProvider = createTestingAgent(app);
     audioService.attach(agentWithoutProvider);
 
-    expect(() => audioService.requireAudioProvider(agentWithoutProvider)).toThrow();
+    expect(() => audioService.requireAudioProvider(agentWithoutProvider))
+      .toThrow();
   });
 
   it("should attach and initialize agent state", () => {
@@ -133,7 +134,7 @@ describe("AudioService", () => {
   it("should convert audio to text", async () => {
     const mockProvider = {
       record: mock(),
-      playback: mock(),
+      playback: mock()
     };
 
     audioService.registerProvider("test-provider", mockProvider);
@@ -150,7 +151,7 @@ describe("AudioService", () => {
   it("should convert text to speech", async () => {
     const mockProvider = {
       record: mock(),
-      playback: mock(),
+      playback: mock()
     };
 
     audioService.registerProvider("test-provider", mockProvider);
@@ -162,16 +163,16 @@ describe("AudioService", () => {
     expect(mockSpeechModel.generateSpeech).toHaveBeenCalledWith(
       expect.objectContaining({
         text: "Hello world",
-        speed: 1.2,
+        speed: 1.2
       }),
-      mockAgent,
+      mockAgent
     );
   });
 
   it("should use default language when not provided", async () => {
     const mockProvider = {
       record: mock(),
-      playback: mock(),
+      playback: mock()
     };
 
     audioService.registerProvider("test-provider", mockProvider);
@@ -183,9 +184,9 @@ describe("AudioService", () => {
 
     expect(mockTranscriptionModel.transcribe).toHaveBeenCalledWith(
       expect.objectContaining({
-        audio: audioBuffer,
+        audio: audioBuffer
       }),
-      mockAgent,
+      mockAgent
     );
   });
 });

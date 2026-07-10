@@ -1,18 +1,15 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { AgentCommandService } from "@tokenring-ai/agent";
+import { afterEach,beforeEach,describe,expect,it,mock,spyOn } from "bun:test";
 import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent.test";
 import { SpeechModelRegistry, TranscriptionModelRegistry } from "@tokenring-ai/ai-client/ModelRegistry";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp.test";
 import { ChatService } from "@tokenring-ai/chat";
-import MediaLibraryService from "@tokenring-ai/media-library/MediaLibraryService";
 import AudioService from "./AudioService.ts";
 import agentCommands from "./commands.ts";
 import plugin from "./plugin.ts";
 import { AudioServiceConfigSchema } from "./schema.ts";
 import { AudioState } from "./state/audioState.ts";
 import tools from "./tools.ts";
-
-const MEDIA_OUTPUT_DIR = "/tmp/tokenring-audio-integration-media";
 
 describe("Audio Integration Tests", () => {
   let app: ReturnType<typeof createTestingApp>;
@@ -23,47 +20,29 @@ describe("Audio Integration Tests", () => {
   let mockSpeechModel: any;
   let mockTranscriptionRegistry: any;
   let mockSpeechRegistry: any;
-  let mediaLibrary: MediaLibraryService;
 
   beforeEach(() => {
     app = createTestingApp();
 
     mockProvider = {
       record: mock().mockResolvedValue({ filePath: "/tmp/test.wav" }),
-      playback: mock().mockResolvedValue("/tmp/test.wav"),
+      playback: mock().mockResolvedValue("/tmp/test.wav")
     };
 
     mockTranscriptionModel = {
-      transcribe: mock().mockResolvedValue(["Hello world"]),
+      transcribe: mock().mockResolvedValue(["Hello world"])
     };
 
     mockSpeechModel = {
-      generateSpeech: mock().mockResolvedValue([Buffer.from("test audio")]),
+      generateSpeech: mock().mockResolvedValue([Buffer.from("test audio")])
     };
 
+    // Create proper mock registries
     mockTranscriptionRegistry = new TranscriptionModelRegistry();
     mockSpeechRegistry = new SpeechModelRegistry();
 
-    spyOn(mockTranscriptionRegistry, "getClient").mockReturnValue(mockTranscriptionModel);
-    spyOn(mockSpeechRegistry, "getClient").mockReturnValue(mockSpeechModel);
-
-    mediaLibrary = new MediaLibraryService({
-      staticPath: "/api/media",
-      agentDefaults: { outputDirectory: MEDIA_OUTPUT_DIR },
-    });
-    spyOn(mediaLibrary, "writeMedia").mockImplementation(async (options: any) => {
-      const extension = options.extension ?? "bin";
-      const filename = `saved.${extension}`;
-      const filePath = `${MEDIA_OUTPUT_DIR}/${filename}`;
-      return {
-        kind: options.kind,
-        filename,
-        filePath,
-        mimeType: options.mimeType,
-        keywords: options.keywords ?? [],
-        buffer: options.buffer,
-      };
-    });
+    spyOn(mockTranscriptionRegistry, "getClient").mockResolvedValue(mockTranscriptionModel);
+    spyOn(mockSpeechRegistry, "getClient").mockResolvedValue(mockSpeechModel);
 
     const config = AudioServiceConfigSchema.parse({
       tmpDirectory: "/tmp",
@@ -71,8 +50,8 @@ describe("Audio Integration Tests", () => {
       agentDefaults: {
         provider: "test",
         transcribe: { model: "whisper-1", language: "en" },
-        speech: { model: "tts-1", voice: "alloy", speed: 1.0 },
-      },
+        speech: { model: "tts-1", voice: "alloy", speed: 1.0 }
+      }
     });
 
     audioService = new AudioService(config);
@@ -80,7 +59,6 @@ describe("Audio Integration Tests", () => {
 
     app.addServices(mockTranscriptionRegistry);
     app.addServices(mockSpeechRegistry);
-    app.addServices(mediaLibrary);
     app.addServices(audioService);
 
     agent = createTestingAgent(app);
@@ -98,19 +76,30 @@ describe("Audio Integration Tests", () => {
   });
 
   it("should complete full transcription workflow", async () => {
+    // Create a temp file for testing
     const audioBuffer = Buffer.from("fake audio data");
 
-    const transcription = await audioService.convertAudioToText(audioBuffer, agent);
+    // Transcribe the audio buffer
+    const transcription = await audioService.convertAudioToText(
+      audioBuffer,
+      agent
+    );
 
     expect(transcription.text).toBe("Hello world");
     expect(mockTranscriptionModel.transcribe).toHaveBeenCalled();
   });
 
   it("should complete full TTS workflow", async () => {
-    const ttsResult = await audioService.convertTextToSpeech("Hello world", { speed: 1.2 }, agent);
+    // Convert text to speech
+    const ttsResult = await audioService.convertTextToSpeech(
+      "Hello world",
+      { speed: 1.2 },
+      agent
+    );
 
     expect(ttsResult.data).toBeInstanceOf(Buffer);
 
+    // Play the generated audio
     const tmpFile = "/tmp/speech-test.mp3";
     await mockProvider.playback(tmpFile);
 
@@ -120,7 +109,7 @@ describe("Audio Integration Tests", () => {
   it("should handle provider switching", async () => {
     const newProvider = {
       record: mock().mockResolvedValue({ filePath: "/tmp/new.wav" }),
-      playback: mock().mockResolvedValue("/tmp/new.wav"),
+      playback: mock().mockResolvedValue("/tmp/new.wav")
     };
 
     audioService.registerProvider("new-provider", newProvider);
@@ -131,6 +120,7 @@ describe("Audio Integration Tests", () => {
   });
 
   it("should integrate plugin with app", async () => {
+    // Create a new app for plugin testing
     const pluginApp = createTestingApp();
 
     const config = {
@@ -140,11 +130,13 @@ describe("Audio Integration Tests", () => {
         agentDefaults: {
           provider: "test-provider",
           transcribe: {},
-          speech: {},
-        },
-      }),
+          speech: {}
+        }
+      })
     };
 
+    // Mock required services - these need to be registered BEFORE plugin.install
+    // The plugin uses waitForService which calls the callback immediately if service exists
     const mockChatService = new ChatService(pluginApp, {
       defaultModels: [],
       defaultTranscriptionModels: [],
@@ -167,11 +159,14 @@ describe("Audio Integration Tests", () => {
 
     plugin.install(pluginApp, config as any);
 
+    // Verify AudioService was registered
     const services = pluginApp.getServices();
     expect(services.some(s => s.name === "AudioService")).toBe(true);
 
+    // Wait for the async operations to complete
     await new Promise(resolve => setTimeout(resolve, 200));
 
+    // The waitForService callbacks should have been called since services exist
     expect(addToolsSpy).toHaveBeenCalled();
     expect(addCommandsSpy).toHaveBeenCalled();
 
@@ -179,13 +174,14 @@ describe("Audio Integration Tests", () => {
   });
 
   it("should register tools with ChatService", () => {
-    const toolNames = tools.map(tool => tool.name);
-    expect(toolNames).toContain("voice_record");
-    expect(toolNames).toContain("voice_transcribe");
-    expect(toolNames).toContain("voice_speak");
-    expect(toolNames).toContain("audio_playback");
+    const toolNames = Object.keys(tools);
+    expect(toolNames).toContain("record");
+    expect(toolNames).toContain("transcribe");
+    expect(toolNames).toContain("speak");
+    expect(toolNames).toContain("playback");
 
-    tools.forEach(tool => {
+    // Verify each tool has required properties
+    Object.values(tools).forEach(tool => {
       expect(tool.name).toBeDefined();
       expect(tool.displayName).toBeDefined();
       expect(tool.description).toBeDefined();
@@ -198,12 +194,14 @@ describe("Audio Integration Tests", () => {
     expect(agentCommands).toBeInstanceOf(Array);
     expect(agentCommands.length).toBeGreaterThan(0);
 
+    // Check for expected commands
     const commandNames = agentCommands.map(cmd => cmd.name);
     expect(commandNames).toContain("audio record");
     expect(commandNames).toContain("audio play");
     expect(commandNames).toContain("audio speak");
     expect(commandNames).toContain("audio transcribe");
 
+    // Verify each command has required properties
     agentCommands.forEach(command => {
       expect(command.name).toBeDefined();
       expect(command.description).toBeDefined();
@@ -214,13 +212,16 @@ describe("Audio Integration Tests", () => {
   });
 
   it("should handle state initialization for new agent", () => {
+    // Create a new agent with the same app
     const newAgent = createTestingAgent(app);
     audioService.attach(newAgent);
 
+    // State should be initialized with defaults from agentDefaults
     expect(newAgent.getState(AudioState).transcribe.model).toBe("whisper-1");
   });
 
   it("should handle concurrent operations", async () => {
+    // Perform multiple operations concurrently
     const operations = [
       audioService.convertTextToSpeech("Text 1", {}, agent),
       audioService.convertTextToSpeech("Text 2", {}, agent),
@@ -236,22 +237,25 @@ describe("Audio Integration Tests", () => {
   });
 
   it("should handle errors gracefully when no provider is set", () => {
+    // Create a new app and service without provider
     const errorApp = createTestingApp();
     const errorConfig = {
       tmpDirectory: "/tmp",
       providers: {},
       agentDefaults: {
-        provider: "test-provider",
+        provider: "test-provider", // Need a provider for schema validation
         transcribe: { model: "whisper-1" },
-        speech: { model: "tts-1" },
-      },
+        speech: { model: "tts-1" }
+      }
     };
 
     const errorAudioService = new AudioService(errorConfig as any);
+    // Don't register the provider
     errorApp.addServices(errorAudioService);
 
     const errorAgent = createTestingAgent(errorApp);
     errorAudioService.attach(errorAgent);
+    // Don't set a provider - activeProvider will be 'test-provider' but it's not registered
 
     expect(() => {
       errorAudioService.requireAudioProvider(errorAgent);

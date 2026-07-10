@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp.test";
+import { afterEach,beforeEach,describe,expect,it,mock,spyOn } from "bun:test";
 import { ChatService } from "@tokenring-ai/chat";
 import plugin from "./plugin.ts";
 import { AudioServiceConfigSchema } from "./schema.ts";
@@ -37,9 +37,9 @@ describe("Audio Plugin", () => {
         agentDefaults: {
           provider: "test-provider",
           transcribe: {},
-          speech: {},
-        },
-      }),
+          speech: {}
+        }
+      })
     };
 
     plugin.install(app, config as any);
@@ -56,9 +56,9 @@ describe("Audio Plugin", () => {
         agentDefaults: {
           provider: "test-provider",
           transcribe: {},
-          speech: {},
-        },
-      }),
+          speech: {}
+        }
+      })
     };
 
     // Mock ChatService with spy
@@ -91,14 +91,14 @@ describe("Audio Plugin", () => {
         agentDefaults: {
           provider: "test-provider",
           transcribe: {},
-          speech: {},
-        },
-      }),
+          speech: {}
+        }
+      })
     };
 
     // Mock AgentCommandService with spy
     const mockCommandService = {
-      addAgentCommands: mock(),
+      addAgentCommands: mock()
     };
     app.addServices(mockCommandService as any);
 
