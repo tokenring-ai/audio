@@ -35,7 +35,10 @@ async function execute(
 
   await audioService.requireAudioProvider(agent).playback(result.filePath);
 
-  return JSON.stringify({ path: result.filePath, fileName: result.fileName, mediaType: result.mediaType });
+  return {
+    message: "**Audio** Spoke text",
+    result: JSON.stringify({ path: result.filePath, fileName: result.fileName, mediaType: result.mediaType }),
+  };
 }
 
 const description = "Convert text to speech, save it to the media library, and play it using the active audio provider";

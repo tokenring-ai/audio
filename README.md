@@ -48,7 +48,6 @@ bun install @tokenring-ai/audio
 
 **Dev Dependencies:**
 
-- `vitest` - Testing framework
 - `typescript` - TypeScript compiler
 
 ## Core Components
@@ -860,14 +859,13 @@ pkg/audio/
 │               ├── select.ts # STT model select command
 │               └── reset.ts # STT model reset command
 ├── package.json             # Package manifest
-├── vitest.config.ts         # Vitest configuration
 └── README.md                # This file
 ```
 
 ### Contribution Guidelines
 
 - Follow established coding patterns
-- Add unit tests for new functionality using vitest
+- Add unit tests for new functionality using `bun test`
 - Update documentation for new features
 - Ensure all changes work with TokenRing agent framework
 - Test with both headless and interactive modes

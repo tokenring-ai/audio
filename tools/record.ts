@@ -17,7 +17,10 @@ async function execute({ sampleRate, channels, format, timeout, keywords }: z.ou
 
   const result = await voiceService.recordAudio({ sampleRate, channels, format, keywords }, agent, abortController.signal);
 
-  return JSON.stringify({ path: result.filePath, fileName: result.fileName, mediaType: result.mediaType });
+  return {
+    message: "**Audio** Recorded audio",
+    result: JSON.stringify({ path: result.filePath, fileName: result.fileName, mediaType: result.mediaType }),
+  };
 }
 
 const description = "Record audio using the active voice provider and save it to the media library";

@@ -108,8 +108,8 @@ describe("Audio Tools", () => {
     it("should record audio with default options", async () => {
       const result = await recordTool.execute({}, agent);
 
-      expect(typeof result).toBe("string");
-      const parsed = JSON.parse(result as string);
+      expect(result.message).toBe("**Audio** Recorded audio");
+      const parsed = JSON.parse(result.result);
       expect(parsed.path).toBe(`${MEDIA_OUTPUT_DIR}/saved.wav`);
       expect(parsed.fileName).toBe("saved.wav");
       expect(parsed.mediaType).toBeDefined();
@@ -152,7 +152,8 @@ describe("Audio Tools", () => {
       const audioBuffer = Buffer.from("fake audio data");
       const result = await transcribeTool.execute({ audioFile: audioBuffer }, agent);
 
-      expect(result).toBe("Transcription Results:\nHello world");
+      expect(result.message).toBe("**Audio** Transcribed audio");
+      expect(result.result).toBe("Transcription Results:\nHello world");
       expect(mockTranscriptionModel.transcribe).toHaveBeenCalled();
     });
 
@@ -183,7 +184,8 @@ describe("Audio Tools", () => {
     it("should convert text to speech", async () => {
       const result = await speakTool.execute({ text: "Hello world" }, agent);
 
-      const parsed = JSON.parse(result as string);
+      expect(result.message).toBe("**Audio** Spoke text");
+      const parsed = JSON.parse(result.result);
       expect(parsed.path).toBe(`${MEDIA_OUTPUT_DIR}/saved.mp3`);
       expect(parsed.fileName).toBe("saved.mp3");
       expect(parsed.mediaType).toBe("audio/mpeg");
@@ -221,7 +223,8 @@ describe("Audio Tools", () => {
       const result = await playbackTool.execute({ filename: "/tmp/test.wav" }, agent);
 
       // Tool reports the provider playback return value
-      expect(result).toBe(`Played audio file: ${TEST_WAV_PATH}`);
+      expect(result.message).toBe("**Audio** Played /tmp/test.wav");
+      expect(result.result).toBe(`Played audio file: ${TEST_WAV_PATH}`);
       expect(mockProvider.playback).toHaveBeenCalledWith("/tmp/test.wav");
     });
 

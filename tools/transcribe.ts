@@ -10,7 +10,10 @@ async function execute({ audioFile }: z.output<typeof inputSchema>, agent: Agent
   const voiceService = agent.requireServiceByType(AudioService);
   agent.infoMessage(`[${name}] Transcribing audio...`);
   const result = await voiceService.convertAudioToText(audioFile, agent);
-  return `Transcription Results:\n${result.text}`;
+  return {
+    message: "**Audio** Transcribed audio",
+    result: `Transcription Results:\n${result.text}`,
+  };
 }
 
 const description = "Transcribe audio using the active voice provider";
