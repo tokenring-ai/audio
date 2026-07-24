@@ -28,5 +28,5 @@ export default {
       rpcService.registerEndpoint(audioRPC);
     });
   },
-  config: packageConfigSchema,
+  configSchema: packageConfigSchema,
 } satisfies TokenRingPlugin<typeof packageConfigSchema>;
