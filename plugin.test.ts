@@ -21,15 +21,14 @@ describe("Audio Plugin", () => {
     expect(plugin.description).toBeDefined();
   });
 
-  it("should not install services without configuration", () => {
-    plugin.install(app, {} as any);
+  it("should always install AudioService", () => {
+    plugin.install(app);
 
-    // AudioService should not be registered without config.audio
     const services = app.getServices();
-    expect(services.some(s => s.name === "AudioService")).toBe(false);
+    expect(services.some(s => s.name === "AudioService")).toBe(true);
   });
 
-  it("should install AudioService with valid configuration", () => {
+  it("should reconfigure AudioService with valid configuration", () => {
     const config = {
       audio: AudioServiceConfigSchema.parse({
         tmpDirectory: "/tmp",
@@ -42,25 +41,14 @@ describe("Audio Plugin", () => {
       }),
     };
 
-    plugin.install(app, config as any);
+    plugin.install(app);
+    plugin.reconfigure?.(app, config as any);
 
     const services = app.getServices();
     expect(services.some(s => s.name === "AudioService")).toBe(true);
   });
 
   it("should wait for ChatService to add tools", () => {
-    const config = {
-      audio: AudioServiceConfigSchema.parse({
-        tmpDirectory: "/tmp",
-        providers: {},
-        agentDefaults: {
-          provider: "test-provider",
-          transcribe: {},
-          speech: {},
-        },
-      }),
-    };
-
     // Mock ChatService with spy
     const mockChatService = new ChatService(app, {
       defaultModels: [],
@@ -77,42 +65,29 @@ describe("Audio Plugin", () => {
     spyOn(mockChatService, "addTools");
     app.addServices(mockChatService);
 
-    plugin.install(app, config as any);
+    plugin.install(app);
 
     // The plugin should have called waitForService which will eventually call addTools
     expect(mockChatService.addTools).toBeDefined();
   });
 
   it("should wait for AgentCommandService to add commands", () => {
-    const config = {
-      audio: AudioServiceConfigSchema.parse({
-        tmpDirectory: "/tmp",
-        providers: {},
-        agentDefaults: {
-          provider: "test-provider",
-          transcribe: {},
-          speech: {},
-        },
-      }),
-    };
-
     // Mock AgentCommandService with spy
     const mockCommandService = {
       addAgentCommands: mock(),
     };
     app.addServices(mockCommandService as any);
 
-    plugin.install(app, config as any);
+    plugin.install(app);
 
     expect(mockCommandService.addAgentCommands).toBeDefined();
   });
 
-  it("should handle empty configuration", () => {
-    plugin.install(app, { audio: {} } as any);
+  it("should handle missing audio configuration", () => {
+    plugin.install(app);
+    plugin.reconfigure?.(app, {} as any);
 
-    // Empty audio config should still register the service if audio key exists
     const services = app.getServices();
-    // The service is registered if audio config is present (even if empty)
-    expect(services).toBeDefined();
+    expect(services.some(s => s.name === "AudioService")).toBe(true);
   });
 });

@@ -65,9 +65,20 @@ export default class AudioService implements TokenRingService {
   registerProvider = this.providerRegistry.set;
   getAvailableProviders = this.providerRegistry.keysArray;
 
-  constructor(readonly options: z.output<typeof AudioServiceConfigSchema>) {}
+  private options: z.output<typeof AudioServiceConfigSchema> | undefined;
+
+  constructor(options?: z.output<typeof AudioServiceConfigSchema>) {
+    if (options) this.options = options;
+  }
+
+  reconfigure(options: z.output<typeof AudioServiceConfigSchema>): void {
+    this.options = options;
+  }
 
   attach(agent: Agent): void {
+    if (!this.options) {
+      throw new ConfigurationError(this.name, "Audio service has not been configured");
+    }
     const agentConfig = deepClone(this.options.agentDefaults, agent.getAgentConfigSlice("audio", AudioAgentConfigSchema));
     agent.initializeState(AudioState, agentConfig);
   }

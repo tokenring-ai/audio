@@ -165,7 +165,8 @@ describe("Audio Integration Tests", () => {
     pluginApp.addServices(mockChatService);
     pluginApp.addServices(mockCommandService);
 
-    plugin.install(pluginApp, config as any);
+    plugin.install?.(pluginApp);
+    plugin.reconfigure?.(pluginApp, config as any);
 
     const services = pluginApp.getServices();
     expect(services.some(s => s.name === "AudioService")).toBe(true);

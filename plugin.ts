@@ -19,14 +19,18 @@ export default {
   displayName: "Audio Framework",
   version: packageJSON.version,
   description: packageJSON.description,
-  install(app, config) {
-    if (!config.audio) return;
-    app.addServices(new AudioService(config.audio));
+  install(app) {
+    app.addServices(new AudioService());
     app.waitForService(ChatService, chatService => chatService.addTools(...tools));
     app.waitForService(AgentCommandService, agentCommandService => agentCommandService.addAgentCommands(agentCommands));
     app.waitForService(RpcService, rpcService => {
       rpcService.registerEndpoint(audioRPC);
     });
+  },
+  reconfigure(app, config) {
+    if (config.audio) {
+      app.requireService(AudioService).reconfigure(config.audio);
+    }
   },
   configSchema: packageConfigSchema,
 } satisfies TokenRingPlugin<typeof packageConfigSchema>;
