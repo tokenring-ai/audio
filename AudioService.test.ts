@@ -55,8 +55,8 @@ describe("AudioService", () => {
     spyOn(mockTranscriptionRegistry, "getClient").mockReturnValue(mockTranscriptionModel);
     spyOn(mockSpeechRegistry, "getClient").mockReturnValue(mockSpeechModel);
 
-    app.addServices(mockTranscriptionRegistry);
-    app.addServices(mockSpeechRegistry);
+    app.addService(mockTranscriptionRegistry);
+    app.addService(mockSpeechRegistry);
 
     mockAgent = createTestingAgent(app);
     audioService.attach(mockAgent);

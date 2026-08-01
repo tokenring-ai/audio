@@ -78,10 +78,10 @@ describe("Audio Integration Tests", () => {
     audioService = new AudioService(config);
     audioService.registerProvider("test", mockProvider);
 
-    app.addServices(mockTranscriptionRegistry);
-    app.addServices(mockSpeechRegistry);
-    app.addServices(mediaLibrary);
-    app.addServices(audioService);
+    app.addService(mockTranscriptionRegistry);
+    app.addService(mockSpeechRegistry);
+    app.addService(mediaLibrary);
+    app.addService(audioService);
 
     agent = createTestingAgent(app);
     audioService.attach(agent);
@@ -93,7 +93,7 @@ describe("Audio Integration Tests", () => {
   });
 
   it("should integrate AudioService with agent", () => {
-    expect(agent.requireServiceByType(AudioService)).toBe(audioService);
+    expect(agent.requireService(AudioService)).toBe(audioService);
     expect(agent.getState(AudioState)).toBeDefined();
   });
 
@@ -149,8 +149,8 @@ describe("Audio Integration Tests", () => {
       defaultModels: [],
       defaultTranscriptionModels: [],
       agentDefaults: {
+        parallelTools: false,
         enabledTools: [],
-        hiddenTools: [],
         maxSteps: 0,
         allowRemoteAttachments: true,
         compaction: { policy: "ask", compactionThreshold: 0.5, background: false, focus: "summary" },
@@ -159,11 +159,11 @@ describe("Audio Integration Tests", () => {
     });
     const addToolsSpy = spyOn(mockChatService, "addTools");
 
-    const mockCommandService = new AgentCommandService(pluginApp);
+    const mockCommandService = new AgentCommandService();
     const addCommandsSpy = spyOn(mockCommandService, "addAgentCommands");
 
-    pluginApp.addServices(mockChatService);
-    pluginApp.addServices(mockCommandService);
+    pluginApp.addService(mockChatService);
+    pluginApp.addService(mockCommandService);
 
     plugin.install?.(pluginApp);
     plugin.reconfigure?.(pluginApp, config as any);
@@ -249,7 +249,7 @@ describe("Audio Integration Tests", () => {
     };
 
     const errorAudioService = new AudioService(errorConfig as any);
-    errorApp.addServices(errorAudioService);
+    errorApp.addService(errorAudioService);
 
     const errorAgent = createTestingAgent(errorApp);
     errorAudioService.attach(errorAgent);

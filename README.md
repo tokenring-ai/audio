@@ -695,7 +695,7 @@ the plugin exits early without registering anything.
 
 ```typescript
 // Service automatically available through agent
-const audioService = agent.requireServiceByType(AudioService);
+const audioService = agent.requireService(AudioService);
 
 // Transcribe audio
 const result = await audioService.convertAudioToText(audioFile, {
@@ -720,7 +720,7 @@ const provider = audioService.requireAudioProvider(agent);
 ### Provider Integration
 
 ```typescript
-const audioService = agent.requireServiceByType(AudioService);
+const audioService = agent.requireService(AudioService);
 
 // Register a custom provider
 audioService.registerProvider('custom', {

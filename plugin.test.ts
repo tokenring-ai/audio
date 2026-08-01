@@ -54,8 +54,8 @@ describe("Audio Plugin", () => {
       defaultModels: [],
       defaultTranscriptionModels: [],
       agentDefaults: {
+        parallelTools: false,
         enabledTools: [],
-        hiddenTools: [],
         maxSteps: 0,
         allowRemoteAttachments: true,
         compaction: { policy: "ask", compactionThreshold: 0.5, background: false, focus: "summary" },
@@ -63,7 +63,7 @@ describe("Audio Plugin", () => {
       },
     });
     spyOn(mockChatService, "addTools");
-    app.addServices(mockChatService);
+    app.addService(mockChatService);
 
     plugin.install(app);
 
@@ -76,7 +76,7 @@ describe("Audio Plugin", () => {
     const mockCommandService = {
       addAgentCommands: mock(),
     };
-    app.addServices(mockCommandService as any);
+    app.addService(mockCommandService as any);
 
     plugin.install(app);
 

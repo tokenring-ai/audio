@@ -16,7 +16,7 @@ async function execute(
   }: z.output<typeof inputSchema>,
   agent: Agent,
 ): Promise<TokenRingToolResult> {
-  const audioService = agent.requireServiceByType(AudioService);
+  const audioService = agent.requireService(AudioService);
 
   if (!text) {
     throw new ToolCallError(name, `text is required`);

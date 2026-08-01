@@ -32,7 +32,7 @@ describe("AudioState", () => {
     });
 
     audioService = new AudioService(config);
-    app.addServices(audioService);
+    app.addService(audioService);
     agent = createTestingAgent(app);
     audioService.attach(agent);
   });

@@ -20,7 +20,7 @@ const inputSchema = {
 } as const satisfies AgentCommandInputSchema;
 
 async function execute({ remainder, args, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
-  const audioService = agent.requireServiceByType(AudioService);
+  const audioService = agent.requireService(AudioService);
   const result = await audioService.convertTextToSpeechFile(
     remainder,
     {

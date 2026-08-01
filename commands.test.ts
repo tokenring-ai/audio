@@ -86,10 +86,10 @@ describe("Audio Commands", () => {
     audioService = new AudioService(config as any);
     audioService.registerProvider("test", mockProvider);
 
-    app.addServices(mockTranscriptionRegistry);
-    app.addServices(mockSpeechRegistry);
-    app.addServices(mediaLibrary);
-    app.addServices(audioService);
+    app.addService(mockTranscriptionRegistry);
+    app.addService(mockSpeechRegistry);
+    app.addService(mediaLibrary);
+    app.addService(audioService);
     agent = createTestingAgent(app);
     audioService.attach(agent);
     audioService.setActiveProvider("test", agent);
@@ -145,7 +145,7 @@ describe("Audio Commands", () => {
 
     it("should play audio file", async () => {
       const result = await playCommand.execute({
-        positionals: { file: "/tmp/test.wav" },
+        args: { file: "/tmp/test.wav" },
         agent,
       } as any);
 
@@ -205,8 +205,7 @@ describe("Audio Commands", () => {
     it("should transcribe audio file", async () => {
       const audioBuffer = Buffer.from("fake audio data");
       const result = await transcribeCommand.execute({
-        positionals: { file: audioBuffer },
-        args: {},
+        args: { file: audioBuffer },
         agent,
       } as any);
 
@@ -217,8 +216,7 @@ describe("Audio Commands", () => {
     it("should pass audio buffer to transcription client", async () => {
       const audioBuffer = Buffer.from("fake audio data");
       await transcribeCommand.execute({
-        positionals: { file: audioBuffer },
-        args: {},
+        args: { file: audioBuffer },
         agent,
       } as any);
 
@@ -228,8 +226,7 @@ describe("Audio Commands", () => {
     it("should throw error when file is not provided", async () => {
       expect(
         transcribeCommand.execute({
-          positionals: { file: undefined },
-          args: {},
+          args: { file: undefined },
           agent,
         } as any),
       ).rejects.toThrow("Usage: /audio transcribe <filename> [flags]");
@@ -245,7 +242,7 @@ describe("Audio Commands", () => {
 
     it("should set STT model", async () => {
       const result = sttSetCommand.execute({
-        positionals: { model: "new-model" },
+        args: { model: "new-model" },
         agent,
       } as any);
 
@@ -270,7 +267,7 @@ describe("Audio Commands", () => {
 
     it("should set TTS model", async () => {
       const result = ttsSetCommand.execute({
-        positionals: { model: "new-tts-model" },
+        args: { model: "new-tts-model" },
         agent,
       } as any);
 

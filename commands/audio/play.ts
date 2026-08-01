@@ -12,10 +12,10 @@ const inputSchema = {
   ],
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({ positionals, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
-  const file = positionals.file;
+async function execute({ args, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+  const file = args.file;
 
-  const audioService = agent.requireServiceByType(AudioService);
+  const audioService = agent.requireService(AudioService);
   const result = await audioService.requireAudioProvider(agent).playback(audioService.resolveAudioPath(file, agent));
   return `Played: ${result}`;
 }

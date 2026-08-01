@@ -6,10 +6,7 @@ import { AudioState } from "../../../../state/audioState.ts";
 const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
 async function execute({ agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
-  const modelsByProvider = await agent.busyWithActivity(
-    "Checking online status of models...",
-    agent.requireServiceByType(SpeechModelRegistry).getModelsByProvider(),
-  );
+  const modelsByProvider = await agent.busyWithActivity("Checking online status of models...", agent.requireService(SpeechModelRegistry).getModelsByProvider());
 
   const tree: TreeLeaf[] = Object.entries(modelsByProvider)
     .sort(([a], [b]) => a.localeCompare(b))

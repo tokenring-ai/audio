@@ -12,9 +12,9 @@ const inputSchema = {
   ],
 } as const satisfies AgentCommandInputSchema;
 
-async function execute({ positionals, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
-  const audioService = agent.requireServiceByType(AudioService);
-  const file = positionals.file;
+async function execute({ args, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
+  const audioService = agent.requireService(AudioService);
+  const file = args.file;
   if (!file) throw new CommandFailedError("Usage: /audio transcribe <filename> [flags]");
   const result = await audioService.convertAudioToText(file, agent);
   return `Transcription: ${result.text}`;

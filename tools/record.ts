@@ -7,7 +7,7 @@ const name = "voice_record";
 const displayName = "Audio/record";
 
 async function execute({ sampleRate, channels, format, timeout, keywords }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
-  const voiceService = agent.requireServiceByType(AudioService);
+  const voiceService = agent.requireService(AudioService);
   agent.infoMessage(`[${name}] Starting recording...`);
 
   const abortController = new AbortController();

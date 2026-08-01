@@ -4,7 +4,7 @@ import AudioService from "../../AudioService.ts";
 const inputSchema = {} as const satisfies AgentCommandInputSchema;
 
 async function execute({ agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
-  const audioService = agent.requireServiceByType(AudioService);
+  const audioService = agent.requireService(AudioService);
   await audioService.reindex(agent);
   return "Audio media re-indexed successfully.";
 }

@@ -7,7 +7,7 @@ const name = "audio_playback";
 const displayName = "Audio/playback";
 
 async function execute({ filename }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
-  const voiceService = agent.requireServiceByType(AudioService);
+  const voiceService = agent.requireService(AudioService);
   const audioPath = voiceService.resolveAudioPath(filename, agent);
   agent.infoMessage(`[${name}] Playing audio: ${audioPath}`);
   const result = await voiceService.requireAudioProvider(agent).playback(audioPath);

@@ -8,7 +8,7 @@ const inputSchema = {} as const satisfies AgentCommandInputSchema;
 async function execute({ agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
   const modelsByProvider = await agent.busyWithActivity(
     "Checking online status of models...",
-    agent.requireServiceByType(TranscriptionModelRegistry).getModelsByProvider(),
+    agent.requireService(TranscriptionModelRegistry).getModelsByProvider(),
   );
 
   const tree: TreeLeaf[] = Object.entries(modelsByProvider)

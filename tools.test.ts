@@ -78,10 +78,10 @@ describe("Audio Tools", () => {
     audioService = new AudioService(config as any);
     audioService.registerProvider("test", mockProvider);
 
-    app.addServices(mockTranscriptionRegistry);
-    app.addServices(mockSpeechRegistry);
-    app.addServices(mediaLibrary);
-    app.addServices(audioService);
+    app.addService(mockTranscriptionRegistry);
+    app.addService(mockSpeechRegistry);
+    app.addService(mediaLibrary);
+    app.addService(audioService);
 
     agent = createTestingAgent(app);
     audioService.attach(agent);

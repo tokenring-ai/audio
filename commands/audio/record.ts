@@ -11,7 +11,7 @@ const inputSchema = {
 } as const satisfies AgentCommandInputSchema;
 
 async function execute({ args, agent }: AgentCommandInputType<typeof inputSchema>): Promise<string> {
-  const audioService = agent.requireServiceByType(AudioService);
+  const audioService = agent.requireService(AudioService);
   const abortController = new AbortController();
   agent.infoMessage("Recording... Press Ctrl+C to stop");
   const result = await audioService.recordAudio({ format: args.format as string }, agent, abortController.signal);

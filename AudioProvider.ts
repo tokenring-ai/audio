@@ -15,7 +15,7 @@ export interface RecordingResult {
 }
 
 export interface AudioResult {
-  data: any;
+  data: Uint8Array<ArrayBufferLike>;
   mediaType?: string | undefined;
 }
 

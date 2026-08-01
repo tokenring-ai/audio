@@ -12,8 +12,8 @@ const inputSchema = {
   ],
 } as const satisfies AgentCommandInputSchema;
 
-function execute({ positionals, agent }: AgentCommandInputType<typeof inputSchema>): string {
-  const modelName = positionals.model;
+function execute({ args, agent }: AgentCommandInputType<typeof inputSchema>): string {
+  const modelName = args.model;
 
   agent.mutateState(AudioState, state => {
     state.speech.model = modelName;

@@ -96,12 +96,12 @@ export default class AudioService implements TokenRingService {
   }
 
   async reindex(agent: Agent): Promise<void> {
-    await agent.requireServiceByType(MediaLibraryService).reindex(agent, ["audio"]);
+    await agent.requireService(MediaLibraryService).reindex(agent, ["audio"]);
   }
 
   resolveAudioPath(filename: string, agent: Agent): string {
     if (filename.includes("/") || path.isAbsolute(filename)) return filename;
-    return `${agent.requireServiceByType(MediaLibraryService).getOutputDirectory(agent)}/${filename}`;
+    return `${agent.requireService(MediaLibraryService).getOutputDirectory(agent)}/${filename}`;
   }
 
   async saveAudioBuffer(
@@ -125,7 +125,7 @@ export default class AudioService implements TokenRingService {
     },
     agent: Agent,
   ): Promise<{ fileName: string; filePath: string; mediaType: string; buffer: Buffer }> {
-    const media = await agent.requireServiceByType(MediaLibraryService).writeMedia(
+    const media = await agent.requireService(MediaLibraryService).writeMedia(
       {
         kind: "audio",
         buffer,
@@ -209,7 +209,7 @@ export default class AudioService implements TokenRingService {
   }
 
   async convertAudioToText(audioFile: string | Buffer, agent: Agent): Promise<TranscriptionResult> {
-    const transcriptionModelRegistry = agent.requireServiceByType(TranscriptionModelRegistry);
+    const transcriptionModelRegistry = agent.requireService(TranscriptionModelRegistry);
     const { transcribe } = agent.getState(AudioState);
     const client = transcriptionModelRegistry.getClient(transcribe.model);
 
@@ -226,7 +226,7 @@ export default class AudioService implements TokenRingService {
   }
 
   async convertTextToSpeech(text: string, { voice, speed }: { voice?: string | undefined; speed?: number | undefined }, agent: Agent): Promise<AudioResult> {
-    const speechModelRegistry = agent.requireServiceByType(SpeechModelRegistry);
+    const speechModelRegistry = agent.requireService(SpeechModelRegistry);
     const { speech } = agent.getState(AudioState);
     const client = speechModelRegistry.getClient(speech.model);
 
