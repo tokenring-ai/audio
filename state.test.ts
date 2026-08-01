@@ -123,16 +123,16 @@ describe("AudioState", () => {
     // Get the parent state
     const parentState = parentAgent.getState(AudioState);
 
-    // Create a child agent and get its state
+    // Create a child agent and transfer state via mutateState
     const childAgent = createTestingAgent(app);
     audioService.attach(childAgent);
+    childAgent.mutateState(AudioState, state => {
+      state.activeProvider = parentState.activeProvider;
+      state.transcribe = parentState.transcribe;
+      state.speech = parentState.speech;
+    });
+
     const childState = childAgent.getState(AudioState);
-
-    // Transfer state manually
-    childState.activeProvider = parentState.activeProvider;
-    childState.transcribe = parentState.transcribe;
-    childState.speech = parentState.speech;
-
     expect(childState.activeProvider).toBe("parent-provider");
     expect(childState.transcribe.model).toBe("parent-model");
   });
