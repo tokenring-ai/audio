@@ -58,6 +58,8 @@ describe("Audio Plugin", () => {
         enabledTools: [],
         maxSteps: 0,
         allowRemoteAttachments: true,
+        autoToolApprovalLevel: 3,
+        toolApprovalMode: "ask",
         compaction: { policy: "ask", compactionThreshold: 0.5, background: false, focus: "summary" },
         context: { initial: [], followUp: [] },
       },
