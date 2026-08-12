@@ -33,24 +33,21 @@ export const AudioSpeechConfigSchema = z.object({
 
 export const AudioAgentConfigSchema = z
   .object({
-    provider: z.string().exactOptional(),
     transcribe: AudioTranscriptionConfigSchema.exactOptional(),
     speech: AudioSpeechConfigSchema.exactOptional(),
   })
   .prefault({});
 
-export const AudioAgentDefaultsSchema = z.object({
-  provider: z.string().meta({ description: "Audio provider new agents use by default" } satisfies ConfigFieldMeta),
-  transcribe: AudioTranscriptionConfigSchema.prefault({}).meta({ label: "Transcription" } satisfies ConfigFieldMeta),
-  speech: AudioSpeechConfigSchema.prefault({}).meta({ label: "Speech" } satisfies ConfigFieldMeta),
-});
+export const AudioAgentDefaultsSchema = z
+  .object({
+    transcribe: AudioTranscriptionConfigSchema.prefault({}).meta({ label: "Transcription" } satisfies ConfigFieldMeta),
+    speech: AudioSpeechConfigSchema.prefault({}).meta({ label: "Speech" } satisfies ConfigFieldMeta),
+  })
+  .prefault({});
 
 export const AudioServiceConfigSchema = z
   .object({
-    tmpDirectory: z
-      .string()
-      .default("/tmp")
-      .meta({ advanced: true, description: "Scratch directory for temporary audio files" } satisfies ConfigFieldMeta),
     agentDefaults: AudioAgentDefaultsSchema.meta({ label: "Agent Defaults" } satisfies ConfigFieldMeta),
   })
+  .prefault({})
   .meta({ label: "Audio", description: "Speech-to-text and text-to-speech settings" } satisfies ConfigFieldMeta);

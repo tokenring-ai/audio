@@ -60,7 +60,6 @@ The main service class that manages audio operations and provider registry. Impl
 import AudioService from '@tokenring-ai/audio/AudioService';
 
 const audioService = new AudioService({
-  tmpDirectory: '/tmp',
   agentDefaults: {
     provider: 'linux',
     transcribe: {
@@ -519,7 +518,6 @@ const app = new TokenRingApp({
   plugins: [
     audioPlugin.withConfig({
       audio: {
-        tmpDirectory: '/tmp',
         agentDefaults: {
           provider: 'linux',
           transcribe: {
@@ -545,7 +543,6 @@ const app = new TokenRingApp({
 
 ```typescript
 const AudioServiceConfigSchema = z.object({
-  tmpDirectory: z.string().default('/tmp'),
   agentDefaults: AudioAgentDefaultsSchema,
 });
 ```
@@ -598,7 +595,6 @@ const AudioAgentConfigSchema = z.object({
 
 | Option          | Type                       | Default  | Description                         |
 |-----------------|----------------------------|----------|-------------------------------------|
-| `tmpDirectory`  | `string`                   | `/tmp`   | Directory for temporary audio files |
 | `agentDefaults` | `AudioAgentDefaultsSchema` | required | Default configuration for agents    |
 
 #### Agent Defaults
@@ -905,7 +901,6 @@ pkg/audio/
 ### Configuration
 
 - Provide complete `agentDefaults` configuration
-- Set `tmpDirectory` to a writable location
 - Configure providers before setting as active
 - Use prefaulted schemas for optional configurations
 

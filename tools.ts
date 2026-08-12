@@ -1,6 +1,4 @@
-import playback from "./tools/playback.ts";
-import record from "./tools/record.ts";
-import speak from "./tools/speak.ts";
-import transcribe from "./tools/transcribe.ts";
+import generateAudio from "./tools/generateAudio.ts";
+import transcribe from "./tools/transcribeAudio.ts";
 
-export default [record, transcribe, speak, playback];
+export default [transcribe, generateAudio];

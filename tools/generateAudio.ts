@@ -4,8 +4,8 @@ import { ToolCallError } from "@tokenring-ai/chat/util/tokenRingTool";
 import { z } from "zod";
 import AudioService from "../AudioService.ts";
 
-const name = "voice_speak";
-const displayName = "Audio/speak";
+const name = "audio_generate";
+const displayName = "Audio/Generate Audio";
 
 async function execute(
   {
@@ -33,15 +33,13 @@ async function execute(
     agent,
   );
 
-  await audioService.requireAudioProvider(agent).playback(result.filePath);
-
   return {
-    message: "**Audio** Spoke text",
+    message: `**Audio** Generated audio file ${result.fileName}`,
     result: JSON.stringify({ path: result.filePath, fileName: result.fileName, mediaType: result.mediaType }),
   };
 }
 
-const description = "Convert text to speech, save it to the media library, and play it using the active audio provider";
+const description = "Convert text to an audio file, which will be saved to a new file on the filesystem";
 
 const inputSchema = z.object({
   text: z.string().min(1).describe("Text to convert to speech"),

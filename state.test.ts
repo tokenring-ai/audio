@@ -14,7 +14,6 @@ describe("AudioState", () => {
     app = createTestingApp();
 
     const config = AudioServiceConfigSchema.parse({
-      tmpDirectory: "/tmp",
       providers: {},
       agentDefaults: {
         provider: "test-provider",
@@ -44,7 +43,6 @@ describe("AudioState", () => {
   it("should initialize with correct default values", () => {
     const state = agent.getState(AudioState);
 
-    expect(state.activeProvider).toBe("test-provider");
     expect(state.transcribe.model).toBe("whisper-1");
     expect(state.transcribe.prompt).toBe("Convert to English");
     expect(state.transcribe.language).toBe("en");
@@ -59,7 +57,6 @@ describe("AudioState", () => {
     const serialized = state.serialize();
 
     expect(serialized).toEqual({
-      activeProvider: "test-provider",
       transcribe: {
         model: "whisper-1",
         prompt: "Convert to English",
@@ -91,8 +88,6 @@ describe("AudioState", () => {
     };
 
     state.deserialize(newData);
-
-    expect(state.activeProvider).toBe("new-provider");
     expect(state.transcribe.model).toBe("new-whisper");
     expect(state.transcribe.prompt).toBe("New prompt");
     expect(state.transcribe.language).toBe("de");
@@ -116,7 +111,6 @@ describe("AudioState", () => {
     audioService.attach(parentAgent);
 
     parentAgent.mutateState(AudioState, state => {
-      state.activeProvider = "parent-provider";
       state.transcribe.model = "parent-model";
     });
 
@@ -127,13 +121,11 @@ describe("AudioState", () => {
     const childAgent = createTestingAgent(app);
     audioService.attach(childAgent);
     childAgent.mutateState(AudioState, state => {
-      state.activeProvider = parentState.activeProvider;
       state.transcribe = parentState.transcribe;
       state.speech = parentState.speech;
     });
 
     const childState = childAgent.getState(AudioState);
-    expect(childState.activeProvider).toBe("parent-provider");
     expect(childState.transcribe.model).toBe("parent-model");
   });
 
@@ -153,7 +145,6 @@ describe("AudioState", () => {
 
   it("should handle missing optional config fields", () => {
     const config = AudioServiceConfigSchema.parse({
-      tmpDirectory: "/tmp",
       providers: {},
       agentDefaults: {
         provider: "test-provider",

@@ -29,19 +29,18 @@ async function execute({ remainder, args, agent }: AgentCommandInputType<typeof 
     },
     agent,
   );
-  await audioService.requireAudioProvider(agent).playback(result.filePath);
-  return `Speech generated: ${result.filePath}`;
+  return `Audio file generated: ${result.fileName}`;
 }
 
-const help = `Convert text to speech, save it to the media library, and play it through the speakers.
+const help = `Convert text to an audio file, which will be saved to a new file on the filesystem.
 
 ## Example
 
-/audio speak "Hello world"
-/audio speak "Welcome" --voice female --speed 1.2`;
+/audio generate "Hello world"
+/audio generate "Welcome" --voice female --speed 1.2`;
 
 export default {
-  name: "audio speak",
+  name: "audio generate",
   description: "Convert text to speech",
   inputSchema,
   help,

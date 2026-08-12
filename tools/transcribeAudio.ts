@@ -3,8 +3,8 @@ import type { TokenRingToolDefinition, TokenRingToolResult } from "@tokenring-ai
 import { z } from "zod";
 import AudioService from "../AudioService.ts";
 
-const name = "voice_transcribe";
-const displayName = "Audio/transcribe";
+const name = "auto_transcribe";
+const displayName = "Audio/Transcribe Audio";
 
 async function execute({ audioFile }: z.output<typeof inputSchema>, agent: Agent): Promise<TokenRingToolResult> {
   const voiceService = agent.requireService(AudioService);
@@ -16,7 +16,7 @@ async function execute({ audioFile }: z.output<typeof inputSchema>, agent: Agent
   };
 }
 
-const description = "Transcribe audio using the active voice provider";
+const description = "Transcribe audio to text";
 
 const inputSchema = z.object({
   audioFile: z.any().describe("Audio file to transcribe"),

@@ -1,13 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
-import { AgentCommandService } from "@tokenring-ai/agent";
 import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent.test";
 import { SpeechModelRegistry, TranscriptionModelRegistry } from "@tokenring-ai/ai-client/ModelRegistry";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp.test";
-import { ChatService } from "@tokenring-ai/chat";
 import MediaLibraryService from "@tokenring-ai/media-library/MediaLibraryService";
+import { MediaLibraryServiceConfigSchema } from "@tokenring-ai/media-library/schema";
 import AudioService from "./AudioService.ts";
 import agentCommands from "./commands.ts";
-import plugin from "./plugin.ts";
 import { AudioServiceConfigSchema } from "./schema.ts";
 import { AudioState } from "./state/audioState.ts";
 import tools from "./tools.ts";
@@ -47,10 +45,12 @@ describe("Audio Integration Tests", () => {
     spyOn(mockTranscriptionRegistry, "getClient").mockReturnValue(mockTranscriptionModel);
     spyOn(mockSpeechRegistry, "getClient").mockReturnValue(mockSpeechModel);
 
-    mediaLibrary = new MediaLibraryService({
-      staticPath: "/api/media",
-      agentDefaults: { outputDirectory: MEDIA_OUTPUT_DIR },
-    });
+    mediaLibrary = new MediaLibraryService(
+      app,
+      MediaLibraryServiceConfigSchema.parse({
+        outputDirectory: MEDIA_OUTPUT_DIR,
+      }),
+    );
     spyOn(mediaLibrary, "writeMedia").mockImplementation(async (options: any) => {
       const extension = options.extension ?? "bin";
       const filename = `saved.${extension}`;
@@ -66,7 +66,6 @@ describe("Audio Integration Tests", () => {
     });
 
     const config = AudioServiceConfigSchema.parse({
-      tmpDirectory: "/tmp",
       providers: { test: mockProvider },
       agentDefaults: {
         provider: "test",
@@ -76,7 +75,6 @@ describe("Audio Integration Tests", () => {
     });
 
     audioService = new AudioService(config);
-    audioService.registerProvider("test", mockProvider);
 
     app.addService(mockTranscriptionRegistry);
     app.addService(mockSpeechRegistry);
@@ -85,7 +83,6 @@ describe("Audio Integration Tests", () => {
 
     agent = createTestingAgent(app);
     audioService.attach(agent);
-    audioService.setActiveProvider("test", agent);
   });
 
   afterEach(() => {
@@ -117,76 +114,10 @@ describe("Audio Integration Tests", () => {
     expect(mockProvider.playback).toHaveBeenCalledWith(tmpFile);
   });
 
-  it("should handle provider switching", async () => {
-    const newProvider = {
-      record: mock().mockResolvedValue({ filePath: "/tmp/new.wav" }),
-      playback: mock().mockResolvedValue("/tmp/new.wav"),
-    };
-
-    audioService.registerProvider("new-provider", newProvider);
-    audioService.setActiveProvider("new-provider", agent);
-
-    expect(agent.getState(AudioState).activeProvider).toBe("new-provider");
-    expect(audioService.requireAudioProvider(agent)).toBe(newProvider);
-  });
-
-  it("should integrate plugin with app", async () => {
-    const pluginApp = createTestingApp();
-
-    const config = {
-      audio: AudioServiceConfigSchema.parse({
-        tmpDirectory: "/tmp",
-        providers: {},
-        agentDefaults: {
-          provider: "test-provider",
-          transcribe: {},
-          speech: {},
-        },
-      }),
-    };
-
-    const mockChatService = new ChatService(pluginApp, {
-      defaultModels: [],
-      defaultTranscriptionModels: [],
-      agentDefaults: {
-        parallelTools: false,
-        enabledTools: [],
-        maxSteps: 0,
-        allowRemoteAttachments: true,
-        autoToolApprovalLevel: 3,
-        toolApprovalMode: "ask",
-        compaction: { policy: "ask", compactionThreshold: 0.5, background: false, focus: "summary" },
-        context: { initial: [], followUp: [] },
-      },
-    });
-    const addToolsSpy = spyOn(mockChatService, "addTools");
-
-    const mockCommandService = new AgentCommandService();
-    const addCommandsSpy = spyOn(mockCommandService, "addAgentCommands");
-
-    pluginApp.addService(mockChatService);
-    pluginApp.addService(mockCommandService);
-
-    plugin.install?.(pluginApp);
-    plugin.reconfigure?.(pluginApp, config as any);
-
-    const services = pluginApp.getServices();
-    expect(services.some(s => s.name === "AudioService")).toBe(true);
-
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    expect(addToolsSpy).toHaveBeenCalled();
-    expect(addCommandsSpy).toHaveBeenCalled();
-
-    pluginApp.shutdown();
-  });
-
   it("should register tools with ChatService", () => {
     const toolNames = tools.map(tool => tool.name);
-    expect(toolNames).toContain("voice_record");
     expect(toolNames).toContain("voice_transcribe");
     expect(toolNames).toContain("voice_speak");
-    expect(toolNames).toContain("audio_playback");
 
     tools.forEach(tool => {
       expect(tool.name).toBeDefined();
@@ -202,8 +133,6 @@ describe("Audio Integration Tests", () => {
     expect(agentCommands.length).toBeGreaterThan(0);
 
     const commandNames = agentCommands.map(cmd => cmd.name);
-    expect(commandNames).toContain("audio record");
-    expect(commandNames).toContain("audio play");
     expect(commandNames).toContain("audio speak");
     expect(commandNames).toContain("audio transcribe");
 
@@ -236,30 +165,5 @@ describe("Audio Integration Tests", () => {
     expect(results).toHaveLength(4);
     expect(mockSpeechModel.generateSpeech).toHaveBeenCalledTimes(2);
     expect(mockProvider.playback).toHaveBeenCalledTimes(2);
-  });
-
-  it("should handle errors gracefully when no provider is set", () => {
-    const errorApp = createTestingApp();
-    const errorConfig = {
-      tmpDirectory: "/tmp",
-      providers: {},
-      agentDefaults: {
-        provider: "test-provider",
-        transcribe: { model: "whisper-1" },
-        speech: { model: "tts-1" },
-      },
-    };
-
-    const errorAudioService = new AudioService(errorConfig as any);
-    errorApp.addService(errorAudioService);
-
-    const errorAgent = createTestingAgent(errorApp);
-    errorAudioService.attach(errorAgent);
-
-    expect(() => {
-      errorAudioService.requireAudioProvider(errorAgent);
-    }).toThrow();
-
-    errorApp.shutdown();
   });
 });

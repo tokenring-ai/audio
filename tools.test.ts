@@ -4,11 +4,10 @@ import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent.test
 import { SpeechModelRegistry, TranscriptionModelRegistry } from "@tokenring-ai/ai-client/ModelRegistry";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp.test";
 import MediaLibraryService from "@tokenring-ai/media-library/MediaLibraryService";
+import { MediaLibraryServiceConfigSchema } from "@tokenring-ai/media-library/schema";
 import AudioService from "./AudioService.ts";
-import playbackTool from "./tools/playback.ts";
-import recordTool from "./tools/record.ts";
-import speakTool from "./tools/speak.ts";
-import transcribeTool from "./tools/transcribe.ts";
+import speakTool from "./tools/generateAudio.ts";
+import transcribeTool from "./tools/transcribeAudio.ts";
 
 const TEST_WAV_PATH = "/tmp/tokenring-audio-tools-test.wav";
 const MEDIA_OUTPUT_DIR = "/tmp/tokenring-audio-tools-media";
@@ -47,10 +46,12 @@ describe("Audio Tools", () => {
     spyOn(mockTranscriptionRegistry, "getClient").mockReturnValue(mockTranscriptionModel);
     spyOn(mockSpeechRegistry, "getClient").mockReturnValue(mockSpeechModel);
 
-    mediaLibrary = new MediaLibraryService({
-      staticPath: "/api/media",
-      agentDefaults: { outputDirectory: MEDIA_OUTPUT_DIR },
-    });
+    mediaLibrary = new MediaLibraryService(
+      app,
+      MediaLibraryServiceConfigSchema.parse({
+        outputDirectory: MEDIA_OUTPUT_DIR,
+      }),
+    );
     spyOn(mediaLibrary, "writeMedia").mockImplementation(async (options: any) => {
       const extension = options.extension ?? "bin";
       const filename = `saved.${extension}`;
@@ -66,7 +67,6 @@ describe("Audio Tools", () => {
     });
 
     const config = {
-      tmpDirectory: "/tmp",
       providers: { test: mockProvider },
       agentDefaults: {
         provider: "test",
@@ -76,7 +76,6 @@ describe("Audio Tools", () => {
     };
 
     audioService = new AudioService(config as any);
-    audioService.registerProvider("test", mockProvider);
 
     app.addService(mockTranscriptionRegistry);
     app.addService(mockSpeechRegistry);
@@ -85,7 +84,6 @@ describe("Audio Tools", () => {
 
     agent = createTestingAgent(app);
     audioService.attach(agent);
-    audioService.setActiveProvider("test", agent);
   });
 
   afterEach(() => {
@@ -95,50 +93,6 @@ describe("Audio Tools", () => {
     } catch {
       // ignore
     }
-  });
-
-  describe("record tool", () => {
-    it("should have correct metadata", () => {
-      expect(recordTool.name).toBe("voice_record");
-      expect(recordTool.displayName).toBe("Audio/record");
-      expect(recordTool.description).toBe("Record audio using the active voice provider and save it to the media library");
-      expect(recordTool.inputSchema).toBeDefined();
-    });
-
-    it("should record audio with default options", async () => {
-      const result = await recordTool.execute({}, agent);
-
-      expect(result.message).toBe("**Audio** Recorded audio");
-      const parsed = JSON.parse(result.result);
-      expect(parsed.path).toBe(`${MEDIA_OUTPUT_DIR}/saved.wav`);
-      expect(parsed.fileName).toBe("saved.wav");
-      expect(parsed.mediaType).toBeDefined();
-      expect(mockProvider.record).toHaveBeenCalled();
-    });
-
-    it("should record audio with custom sample rate", async () => {
-      const _result = await recordTool.execute({ sampleRate: 48000 }, agent);
-
-      expect(mockProvider.record).toHaveBeenCalledWith(expect.any(AbortSignal), expect.objectContaining({ sampleRate: 48000 }));
-    });
-
-    it("should record audio with custom channels", async () => {
-      const _result = await recordTool.execute({ channels: 2 }, agent);
-
-      expect(mockProvider.record).toHaveBeenCalledWith(expect.any(AbortSignal), expect.objectContaining({ channels: 2 }));
-    });
-
-    it("should record audio with custom format", async () => {
-      const _result = await recordTool.execute({ format: "wav" }, agent);
-
-      expect(mockProvider.record).toHaveBeenCalledWith(expect.any(AbortSignal), expect.objectContaining({ format: "wav" }));
-    });
-
-    it("should record audio with timeout", async () => {
-      const _result = await recordTool.execute({ timeout: 5000 }, agent);
-
-      expect(mockProvider.record).toHaveBeenCalled();
-    });
   });
 
   describe("transcribe tool", () => {
@@ -209,31 +163,6 @@ describe("Audio Tools", () => {
       await speakTool.execute({ text: "Hello", speed: 1.5 }, agent);
 
       expect(mockSpeechModel.generateSpeech).toHaveBeenCalledWith(expect.objectContaining({ speed: 1.5 }), agent);
-    });
-  });
-
-  describe("playback tool", () => {
-    it("should have correct metadata", () => {
-      expect(playbackTool.name).toBe("audio_playback");
-      expect(playbackTool.displayName).toBe("Audio/playback");
-      expect(playbackTool.description).toBe("Play audio file using the active voice provider");
-    });
-
-    it("should play audio file", async () => {
-      const result = await playbackTool.execute({ filename: "/tmp/test.wav" }, agent);
-
-      // Tool reports the provider playback return value
-      expect(result.message).toBe("**Audio** Played /tmp/test.wav");
-      expect(result.result).toBe(`Played audio file: ${TEST_WAV_PATH}`);
-      expect(mockProvider.playback).toHaveBeenCalledWith("/tmp/test.wav");
-    });
-
-    it("should call infoMessage when playing", async () => {
-      const infoSpy = spyOn(agent, "infoMessage");
-
-      await playbackTool.execute({ filename: "/tmp/test.wav" }, agent);
-
-      expect(infoSpy).toHaveBeenCalledWith(expect.stringContaining("[audio_playback]"));
     });
   });
 });

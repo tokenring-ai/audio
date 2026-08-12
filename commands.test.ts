@@ -4,16 +4,15 @@ import createTestingAgent from "@tokenring-ai/agent/test/createTestingAgent.test
 import { SpeechModelRegistry, TranscriptionModelRegistry } from "@tokenring-ai/ai-client/ModelRegistry";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp.test";
 import MediaLibraryService from "@tokenring-ai/media-library/MediaLibraryService";
+import { MediaLibraryServiceConfigSchema } from "@tokenring-ai/media-library/schema";
 import AudioService from "./AudioService.ts";
+import speakCommand from "./commands/audio/generate.ts";
 import sttGetCommand from "./commands/audio/model/stt/get.ts";
 import sttResetCommand from "./commands/audio/model/stt/reset.ts";
 import sttSetCommand from "./commands/audio/model/stt/set.ts";
 import ttsGetCommand from "./commands/audio/model/tts/get.ts";
 import ttsResetCommand from "./commands/audio/model/tts/reset.ts";
 import ttsSetCommand from "./commands/audio/model/tts/set.ts";
-import playCommand from "./commands/audio/play.ts";
-import recordCommand from "./commands/audio/record.ts";
-import speakCommand from "./commands/audio/speak.ts";
 import transcribeCommand from "./commands/audio/transcribe.ts";
 import { AudioState } from "./state/audioState.ts";
 
@@ -55,10 +54,12 @@ describe("Audio Commands", () => {
     spyOn(mockTranscriptionRegistry, "getClient").mockReturnValue(mockTranscriptionModel);
     spyOn(mockSpeechRegistry, "getClient").mockReturnValue(mockSpeechModel);
 
-    mediaLibrary = new MediaLibraryService({
-      staticPath: "/api/media",
-      agentDefaults: { outputDirectory: MEDIA_OUTPUT_DIR },
-    });
+    mediaLibrary = new MediaLibraryService(
+      app,
+      MediaLibraryServiceConfigSchema.parse({
+        outputDirectory: MEDIA_OUTPUT_DIR,
+      }),
+    );
     spyOn(mediaLibrary, "writeMedia").mockImplementation(async (options: any) => {
       const extension = options.extension ?? "bin";
       const filename = `saved.${extension}`;
@@ -74,7 +75,6 @@ describe("Audio Commands", () => {
     });
 
     const config = {
-      tmpDirectory: "/tmp",
       providers: { test: mockProvider },
       agentDefaults: {
         provider: "test",
@@ -84,7 +84,6 @@ describe("Audio Commands", () => {
     };
 
     audioService = new AudioService(config as any);
-    audioService.registerProvider("test", mockProvider);
 
     app.addService(mockTranscriptionRegistry);
     app.addService(mockSpeechRegistry);
@@ -92,7 +91,6 @@ describe("Audio Commands", () => {
     app.addService(audioService);
     agent = createTestingAgent(app);
     audioService.attach(agent);
-    audioService.setActiveProvider("test", agent);
   });
 
   afterEach(() => {
@@ -102,57 +100,6 @@ describe("Audio Commands", () => {
     } catch {
       // ignore
     }
-  });
-
-  describe("record command", () => {
-    it("should have correct metadata", () => {
-      expect(recordCommand.name).toBe("audio record");
-      expect(recordCommand.description).toBe("Record audio from microphone");
-      expect(recordCommand.help).toBeDefined();
-    });
-
-    it("should record audio", async () => {
-      const result = await recordCommand.execute({ args: {}, agent } as any);
-
-      expect(result).toBe(`Recording saved: ${MEDIA_OUTPUT_DIR}/saved.wav`);
-      expect(mockProvider.record).toHaveBeenCalled();
-    });
-
-    it("should record with format option", async () => {
-      const _result = await recordCommand.execute({
-        args: { format: "wav" },
-        agent,
-      } as any);
-
-      expect(mockProvider.record).toHaveBeenCalledWith(expect.any(AbortSignal), expect.objectContaining({ format: "wav" }));
-    });
-
-    it("should call infoMessage when recording", async () => {
-      const infoSpy = spyOn(agent, "infoMessage");
-
-      await recordCommand.execute({ args: {}, agent } as any);
-
-      expect(infoSpy).toHaveBeenCalledWith("Recording... Press Ctrl+C to stop");
-    });
-  });
-
-  describe("play command", () => {
-    it("should have correct metadata", () => {
-      expect(playCommand.name).toBe("audio play");
-      expect(playCommand.description).toBe("Play audio file");
-      expect(playCommand.help).toBeDefined();
-    });
-
-    it("should play audio file", async () => {
-      const result = await playCommand.execute({
-        args: { file: "/tmp/test.wav" },
-        agent,
-      } as any);
-
-      // Command reports the provider playback return value
-      expect(result).toBe(`Played: ${TEST_WAV_PATH}`);
-      expect(mockProvider.playback).toHaveBeenCalledWith("/tmp/test.wav");
-    });
   });
 
   describe("speak command", () => {
